@@ -12,7 +12,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Inicializar la base de datos SQLite
-const dbPath = path.resolve(__dirname, './db', 'mydb.db'); // Ajusta el nombre de tu base de datos si es necesario
+const dbPath = path.resolve(__dirname, './', 'mydb.db'); // Ajusta el nombre de tu base de datos si es necesario
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error al conectar a la base de datos:', err.message);
