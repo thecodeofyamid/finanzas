@@ -1,0 +1,31 @@
+
+#formus,#results{
+  margin: 2%;
+  border: 1px solid rgba(0, 0, 0,0.5);
+  box-shadow: 20px 20px 20px  rgba(3, 3, 3, 0.55);
+  color: black;
+}
+
+.css-1rim0pk-MuiGrid-root{
+  background: #e0e0e0;
+  margin: 0 !important;
+  padding-bottom: 5% !important;
+  padding-top:0 !important;
+}
+
+.data{
+  margin: 2% 4% 2% 0;
+}
+.data ul li{
+  text-align: left;
+  list-style: none;
+}
+.data ul li div{
+  display: flex;
+}
+.data ul li div p{
+  color: rgb(57, 57, 57);
+}
+select{
+  padding: 2%;
+}
