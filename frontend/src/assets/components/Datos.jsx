@@ -4,7 +4,7 @@ const Datos = () => {
   const [users, setUsers] = useState([])
 
   useEffect(() => {
-    fetch('http://192.168.18.141:3000/consultantes')
+    fetch('http://192.168.18.141:3000/compras')
       .then(response => {
         if (!response.ok) {
           throw new Error('Hubo un error al obtener los usuarios!')
@@ -23,7 +23,7 @@ const Datos = () => {
     <div className='data'>
       <ul>
         {users.map(user => (
-          <li key={user.id}><div><p>{user.inquerir_name}</p><p style={{marginLeft:"0.5%"}}>{user.inquerir_surname}</p></div></li>
+          <li key={user.id}><div><p>{user.descripcion}</p></div></li>
         ))}
       </ul>
     </div>
