@@ -5,14 +5,15 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const port = 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*'
+}));
 app.use(bodyParser.json());
 
 // Inicializar la base de datos SQLite
-const dbPath = path.resolve(__dirname, './', 'mydb.db'); // Ajusta el nombre de tu base de datos si es necesario
+const dbPath = path.resolve(__dirname, './', 'mydb.db'); 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error al conectar a la base de datos:', err.message);

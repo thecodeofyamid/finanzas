@@ -1,32 +1,39 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 
 const Datos = () => {
-  const [users, setUsers] = useState([])
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    fetch('http://192.168.18.141:3000/compras')
+    fetch('https://opulent-palm-tree-v664644jv4xw2w556-3000.app.github.dev/compras')
       .then(response => {
         if (!response.ok) {
-          throw new Error('Hubo un error al obtener los usuarios!')
+          throw new Error('Hubo un error al obtener los usuarios!');
         }
-        return response.json()
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new TypeError('La respuesta no es JSON');
+        }
+        return response.json();
       })
       .then(data => {
-        setUsers(data)
+        setUsers(data);
       })
       .catch(error => {
-        console.error(error)
-      })
-  }, [])
+        console.error('Error al obtener los datos:', error);
+      });
+  }, []);
 
   return (
     <div className='data'>
       <ul>
         {users.map(user => (
-          <li key={user.id}><div><p>{user.descripcion}</p></div></li>
+          <li key={user.id}>
+            <div><p>{user.descripcion}</p></div>
+          </li>
         ))}
       </ul>
     </div>
-  )
-}
-export default Datos
+  );
+};
+
+export default Datos;
