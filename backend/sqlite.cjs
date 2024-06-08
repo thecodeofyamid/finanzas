@@ -5,7 +5,6 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const port = 5000;
 
 // Middleware
 app.use(cors());
@@ -32,6 +31,6 @@ app.get('/compras', (req, res) => {
   });
 });
 
-app.listen(3000, '0.0.0.0', () => {
-  console.log(`Server running at http://0.0.0.0:${3000}/`)
+app.listen(3001, '0.0.0.0', () => {
+  console.log(`Server running at http://0.0.0.0:${3001}/`)
 });

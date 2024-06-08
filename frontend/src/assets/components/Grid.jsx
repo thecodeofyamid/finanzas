@@ -23,7 +23,7 @@ export default function BasicGrid() {
   function verifyEmpty(selectedOption){
     if (selectedOption === "ingresos" || selectedOption === "egresos" || selectedOption === "deudas" || selectedOption === "compras"){
       return (
-      [<h1>{window.toUpperCamelCase(selectedOption)}</h1>,
+      [<h1 id="title">{window.toUpperCamelCase(selectedOption)}</h1>,
       <Datos selectedOption = {selectedOption}/>]
       )
     }else{
@@ -42,7 +42,11 @@ export default function BasicGrid() {
           </Item>
         </Grid>
         <Grid item xs={8}>
-          <Item id="results" sx={{height:'100%', borderRadius:'10px'}}>
+          <Item id="results" sx={{height:'100%',width:'100%',borderRadius:'10px'}}>
+            <div>
+              <div id="cielo"></div>
+              <div id="tierra"></div>
+            </div>
             {verifyEmpty(selectedOption)}
             </Item>
         </Grid>

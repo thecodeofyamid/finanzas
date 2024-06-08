@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
-
 const Datos = () => {
   const [users, setUsers] = useState([])
 
   useEffect(() => {
-    fetch('http://192.168.18.141:3000/compras')
+    fetch('http://192.168.18.141:3001/compras')
       .then(response => {
         if (!response.ok) {
           throw new Error('Hubo un error al obtener los usuarios!')
