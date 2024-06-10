@@ -5,20 +5,15 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Habilitar CORS
-app.use(cors({
-    origin:'*'
-}));
+app.use(cors());
+app.use(express.json()); // Middleware para analizar el cuerpo de la solicitud como JSON
 
-// Conexión a la base de datos SQLite
-const db = new sqlite3.Database('./mydatabase.sqlite'); // o usa el nombre del archivo si quieres una base de datos persistente
+const db = new sqlite3.Database('./mydatabase.sqlite');
 
-// Crear una tabla de ejemplo
 db.serialize(() => {
-  db.run("CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY, nombre TEXT)");
+  db.run("CREATE TABLE IF NOT EXISTS Transactions (id INTEGER PRIMARY KEY, description TEXT, price REAL, date TEXT, importance TEXT, type TEXT, category TEXT, ready TEXT, deadline TEXT)");
 });
 
-// Ruta para obtener todos los usuarios
 app.get('/transactions', (req, res) => {
   db.all("SELECT * FROM Transactions", (err, rows) => {
     if (err) {
@@ -28,19 +23,19 @@ app.get('/transactions', (req, res) => {
   });
 });
 
-// Ruta para agregar un usuario
-// app.post('/add_transactions', (req, res) => {
-//   const nombre = req.body.nombre; // Suponiendo que se envía el nombre en el cuerpo de la solicitud
+app.post('/add_transactions', (req, res) => {
+    const { description, price, date, importance, type, category, ready, deadline } = req.body;
 
-//   db.run("INSERT INTO usuarios (nombre) VALUES (?)", nombre, function(err) {
-//     if (err) {
-//       return res.status(500).json({ error: err.message });
-//     }
-//     res.json({ id: this.lastID, nombre: nombre });
-//   });
-// });
+    db.run("INSERT INTO Transactions (description, price, date, importance, type, category, ready, deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+           [description, price, date, importance, type, category, ready, deadline], 
+           function(err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json({ id: this.lastID, description: description });
+    });
+});
 
-// Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor Express corriendo en el puerto ${PORT}`);
 });
