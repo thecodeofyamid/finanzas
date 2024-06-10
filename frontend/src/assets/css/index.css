@@ -3,14 +3,52 @@
   margin:0;
   box-sizing: border-box;
 }
+#root{
+  background: #333;
+}
 body,#root{
   width: 100%;
   height: 100vh;
 }
-form{
-  padding: 2%;
+h1,h2{
+  width: 100%;
+  text-align: center;
+  padding: 1%;
+  font-size: 30px !important;
 }
+#form-principal{background: black; color: white; width: 50% ;padding: 2%; border: 1px solid black; border-radius: 10px 10px 0px 0px; display: flex; flex-direction: column; align-items: center;}
 input{
   text-align: center;
-  height: 50px !important;
+  height: 40px !important;
+  background: rgb(80, 80, 80);
+  color: white;
+  font-size: 15px !important;
+}
+
+input::placeholder{
+  color: #b3b3b3;
+}
+#results{
+  background: black;
+  width: 50%;
+  padding: 5%;
+  border-radius: 0px 0px 10px 10px;
+  color: #c4c4c4;
+  max-height: 100vh;
+  overflow: auto;
+}
+#results ul{
+  color: #c4c4c4;
+}
+button{
+  font-size: 20px !important;
+}
+
+@media(width<890px){
+  #form-principal{width: 100% ;}
+  #results{width: 100%;}
+  #container{
+    flex-direction: column;
+    height: auto;
+  }
 }

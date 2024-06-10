@@ -13,7 +13,7 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // Inicializar la base de datos SQLite
-const dbPath = path.resolve(__dirname, './', 'mydb.db'); 
+const dbPath = path.resolve(__dirname, './', 'mydatabase.sqlite'); 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error al conectar a la base de datos:', err.message);
@@ -23,9 +23,29 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 // Rutas
-app.get('/compras', (req, res) => {
-  db.all('SELECT * FROM compras', (err, rows) => {
+app.get('/users', (req, res) => {
+  db.all('SELECT * FROM Users', (err, rows) => {
     if (err) {
+      res.status(500).send(err.message);
+      return;
+    }
+    res.json(rows);
+  });
+});
+
+app.get('/transactions', (req, res) => {
+  db.all('SELECT * FROM Transactions', (err, rows) => {
+    if (err) {
+      res.status(500).send(err.message);
+      return;
+    }
+    res.json(rows);
+  });
+});
+
+app.get('/compras', (req, res) =>{
+  db.all('SELECT * FROM Buys INNER JOIN Transactions ON Buys.Transactions_id = Transactions.id;',(err, rows) => {
+    if(err) {
       res.status(500).send(err.message);
       return;
     }
