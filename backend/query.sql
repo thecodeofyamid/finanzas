@@ -105,13 +105,13 @@
 -- END;
 -- COMMIT;
 
---DROP TRIGGER after_insert_transactions_incomes;
+DROP TRIGGER after_insert_transactions_incomes;
 --DROP TRIGGER after_insert_transactions;
---DROP TRIGGER after_insert_transactions_debts;
---DROP TRIGGER after_insert_transactions_expenses;
+DROP TRIGGER after_insert_transactions_debts;
+DROP TRIGGER after_insert_transactions_expenses;
 
---INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Utiles de Aseo',30000.0,'2024-09-06','Alto','Buys','Aseo Personal',0,'2024-09-06',1);
---DELETE FROM Transactions WHERE id>0;
+INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Utiles de Aseo',30000.0,'2024-09-06','Alto','Buys','Aseo Personal',0,'2024-09-06',1);
+--DELETE FROM Transactions WHERE id>6;
 SELECT * FROM Transactions;
 SELECT * FROM Buys;
 
