@@ -26,20 +26,21 @@
 -- 	FOREIGN KEY("Cash_Usuario_id") REFERENCES "Cash"("Usuario_id"),
 -- 	PRIMARY KEY("id")
 -- );
--- CREATE TABLE IF NOT EXISTS "Transactions" (
--- 	"id"	INTEGER,
--- 	"description"	TEXT,
--- 	"price"	REAL,
--- 	"date"	TEXT,
--- 	"importance"	TEXT,
--- 	"type"	TEXT,
--- 	"category"	TEXT,
--- 	"ready"	INTEGER,
--- 	"deadline"	TEXT,
--- 	"Users_id"	INTEGER,
--- 	FOREIGN KEY("Users_id") REFERENCES "Users"("id"),
--- 	PRIMARY KEY("id" AUTOINCREMENT)
--- );
+DROP TABLE Transactions;
+ CREATE TABLE IF NOT EXISTS "Transactions" (
+ 	"id"	INTEGER,
+ 	"description"	TEXT,
+ 	"price"	REAL,
+ 	"date"	TEXT,
+ 	"importance"	TEXT,
+ 	"type"	TEXT,
+ 	"category"	TEXT,
+ 	"ready"	INTEGER,
+ 	"deadline"	TEXT,
+ 	"Users_id"	INTEGER,
+ 	FOREIGN KEY("Users_id") REFERENCES "Users"("id"),
+ 	PRIMARY KEY("id" AUTOINCREMENT)
+ );
 -- CREATE TABLE IF NOT EXISTS "Expenses" (
 -- 	"id"	INTEGER,
 -- 	"type"	TEXT,
@@ -105,16 +106,16 @@
 -- END;
 -- COMMIT;
 
---
-DROP TRIGGER after_insert_transactions_incomes;
+--DROP TABLE Transactions;
+--DROP TRIGGER after_insert_transactions_incomes;
 --DROP TRIGGER after_insert_transactions;
 --DROP TRIGGER after_insert_transactions_debts;
 --DROP TRIGGER after_insert_transactions_expenses;
 
-INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Utiles de Aseo',30000.0,'2024-09-06','Alto','Buys','Aseo Personal',0,'2024-09-06',1);
---DELETE FROM Transactions WHERE id>6;
+--INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Utiles de Aseo',30000.0,'2024-09-06','Alto','Buys','Aseo Personal',0,'2024-09-06',1);
+--DELETE FROM Transactions WHERE id>0;
 --SELECT * FROM Transactions;
 --SELECT * FROM Buys;
-SELECT * FROM Users;
+--SELECT * FROM Users;
 --CREATE INDEX IF NOT EXISTS idx_buys_transactions_id ON Buys(Transactions_id);
 --CREATE INDEX IF NOT EXISTS idx_transactions_id ON Transactions(id);

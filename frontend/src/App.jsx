@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const ENDPOINT = 'https://potential-robot-jjj6j66p5vpw3vv7-4000.app.github.dev'; // Ajusta el endpoint según tu configuración
+const HTTP_ENDPOINT = 'https://potential-robot-jjj6j66p5vpw3vv7-4000.app.github.dev';
+const WS_ENDPOINT = 'wss://potential-robot-jjj6j66p5vpw3vv7-4000.app.github.dev/ws';
 
 function App() {
     const [inputData, setInputData] = useState({
@@ -18,20 +19,35 @@ function App() {
     const [transactions, setTransactions] = useState([]);
 
     useEffect(() => {
-        fetchData(); // Obtener transacciones al cargar el componente
-        const intervalId = setInterval(fetchData, 5000); // Llamar a fetchData cada 5 segundos
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(`${HTTP_ENDPOINT}/transactions`);
+                setTransactions(response.data);
+            } catch (error) {
+                console.error('Error fetching transactions', error);
+            }
+        };
+        fetchData();
 
-        return () => clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
+        const ws = new WebSocket(WS_ENDPOINT);
+
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+        };
+
+        ws.onmessage = (message) => {
+            try {
+                const data = JSON.parse(message.data);
+                setTransactions((prevTransactions) => [...prevTransactions, data]);
+            } catch (error) {
+                console.error('Error parsing JSON data:', error);
+            }
+        };
+
+        return () => {
+            ws.close();
+        };
     }, []);
-
-    const fetchData = async () => {
-        try {
-            const response = await axios.get(`${ENDPOINT}/transactions`);
-            setTransactions(response.data);
-        } catch (error) {
-            console.error('Error fetching transactions', error);
-        }
-    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -44,7 +60,7 @@ function App() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`${ENDPOINT}/add_transactions`, inputData);
+            await axios.post(`${HTTP_ENDPOINT}/add_transactions`, inputData);
             setInputData({
                 description: '',
                 price: '',
@@ -62,7 +78,7 @@ function App() {
     };
 
     return (
-        <div id="container" style={{ background: '#333', width: '100%', display: 'flex', flexDirection: 'column', gap: '5%', alignItems: 'start', justifyContent: 'center', padding: '5%' }}>
+        <div id="container" style={{ background: '#333', width: '100%', display: 'flex', flexDirection: 'flex', gap: '5%', alignItems: 'start', justifyContent: 'center', padding: '5%' }}>
             <form id="form-principal" onSubmit={handleSubmit} >
                 <h1 style={{ color: '#fff' }}>Transacciones</h1>
                 <input type="text" name="description" value={inputData.description} onChange={handleChange} placeholder="Description" />
@@ -78,9 +94,9 @@ function App() {
             <div id="results" className="results">
                 <h2 style={{ color: '#fff' }}>Transactions</h2>
                 <ul style={{ color: '#fff' }}>
-                    {transactions.map((transaction) => (
-                        <li key={transaction.id}>
-                            {transaction.description} - ${transaction.price} - {transaction.date}
+                    {transactions.map((transaction, index) => (
+                        <li key={index}>
+                            {transaction.id} - {transaction.description} - ${transaction.price} - {transaction.date}
                         </li>
                     ))}
                 </ul>
