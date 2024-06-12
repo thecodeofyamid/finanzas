@@ -55,15 +55,15 @@ DROP TABLE Transactions;
 -- 	FOREIGN KEY("Transactions_id") REFERENCES "Transactions"("id"),
 -- 	PRIMARY KEY("id" AUTOINCREMENT)
 -- );
--- CREATE TABLE IF NOT EXISTS "Buys" (
--- 	"id"	INTEGER,
--- 	"type"	TEXT,
--- 	"importance"	TEXT,
--- 	"ready"	INTEGER,
--- 	"Transactions_id"	INTEGER,
--- 	FOREIGN KEY("Transactions_id") REFERENCES "Transactions"("id"),
--- 	PRIMARY KEY("id" AUTOINCREMENT)
--- );
+ CREATE TABLE IF NOT EXISTS "Buys" (
+ 	"id"	INTEGER,
+ 	"type"	TEXT,
+ 	"importance"	TEXT,
+ 	"ready"	INTEGER,
+ 	"Transactions_id"	INTEGER,
+ 	FOREIGN KEY("Transactions_id") REFERENCES "Transactions"("id"),
+ 	PRIMARY KEY("id" AUTOINCREMENT)
+ );
 -- CREATE TABLE IF NOT EXISTS "Debts" (
 -- 	"id"	INTEGER,
 -- 	"type"	TEXT,
@@ -112,8 +112,8 @@ DROP TABLE Transactions;
 --DROP TRIGGER after_insert_transactions_debts;
 --DROP TRIGGER after_insert_transactions_expenses;
 
---INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Utiles de Aseo',30000.0,'2024-09-06','Alto','Buys','Aseo Personal',0,'2024-09-06',1);
---DELETE FROM Transactions WHERE id>0;
+INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Utiles de Aseo',30000.0,'2024-09-06','Alta','Buys','Aseo Personal',0,'2024-09-06',1);
+--DELETE FROM Transactions WHERE id>4;
 --SELECT * FROM Transactions;
 --SELECT * FROM Buys;
 --SELECT * FROM Users;
