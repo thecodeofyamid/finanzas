@@ -77,6 +77,7 @@ wss.on('connection', ws => {
     // Maneja los mensajes entrantes
     ws.on('message', message => {
         console.log(`Received message: ${message}`);
+        ws.send('Hello client ☀️🍀')
         // Procesa los mensajes entrantes
     });
 

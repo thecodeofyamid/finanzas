@@ -86,6 +86,7 @@ button{
   0 0 35px #ffffff1a;
   padding: 5%;
   margin: 4%;
+  width: auto !important;
   border-radius: 10px;
   display: grid;
   grid-template-columns: 1fr;
