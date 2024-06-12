@@ -26,21 +26,21 @@
 -- 	FOREIGN KEY("Cash_Usuario_id") REFERENCES "Cash"("Usuario_id"),
 -- 	PRIMARY KEY("id")
 -- );
-DROP TABLE Transactions;
- CREATE TABLE IF NOT EXISTS "Transactions" (
- 	"id"	INTEGER,
- 	"description"	TEXT,
- 	"price"	REAL,
- 	"date"	TEXT,
- 	"importance"	TEXT,
- 	"type"	TEXT,
- 	"category"	TEXT,
- 	"ready"	INTEGER,
- 	"deadline"	TEXT,
- 	"Users_id"	INTEGER,
- 	FOREIGN KEY("Users_id") REFERENCES "Users"("id"),
- 	PRIMARY KEY("id" AUTOINCREMENT)
- );
+-- DROP TABLE Transactions;
+--  CREATE TABLE IF NOT EXISTS "Transactions" (
+--  	"id"	INTEGER,
+--  	"description"	TEXT,
+--  	"price"	REAL,
+--  	"date"	TEXT,
+--  	"importance"	TEXT,
+--  	"type"	TEXT,
+--  	"category"	TEXT,
+--  	"ready"	INTEGER,
+--  	"deadline"	TEXT,
+--  	"Users_id"	INTEGER,
+--  	FOREIGN KEY("Users_id") REFERENCES "Users"("id"),
+--  	PRIMARY KEY("id" AUTOINCREMENT)
+--  );
 -- CREATE TABLE IF NOT EXISTS "Expenses" (
 -- 	"id"	INTEGER,
 -- 	"type"	TEXT,
@@ -55,15 +55,16 @@ DROP TABLE Transactions;
 -- 	FOREIGN KEY("Transactions_id") REFERENCES "Transactions"("id"),
 -- 	PRIMARY KEY("id" AUTOINCREMENT)
 -- );
- CREATE TABLE IF NOT EXISTS "Buys" (
- 	"id"	INTEGER,
- 	"type"	TEXT,
- 	"importance"	TEXT,
- 	"ready"	INTEGER,
- 	"Transactions_id"	INTEGER,
- 	FOREIGN KEY("Transactions_id") REFERENCES "Transactions"("id"),
- 	PRIMARY KEY("id" AUTOINCREMENT)
- );
+-- DROP TABLE Buys;
+--  CREATE TABLE IF NOT EXISTS "Buys" (
+--  	"id"	INTEGER,
+--  	"type"	TEXT,
+--  	"importance"	TEXT,
+--  	"ready"	INTEGER,
+--  	"Transactions_id"	INTEGER,
+--  	FOREIGN KEY("Transactions_id") REFERENCES "Transactions"("id"),
+--  	PRIMARY KEY("id" AUTOINCREMENT)
+--  );
 -- CREATE TABLE IF NOT EXISTS "Debts" (
 -- 	"id"	INTEGER,
 -- 	"type"	TEXT,
@@ -90,13 +91,13 @@ DROP TABLE Transactions;
 --     INSERT INTO Debts(type, importance, ready,deadline, Transactions_id)
 --     VALUES (NEW.type, NEW.importance, NEW.deadline,NEW.ready,NEW.deadline,NEW.id);
 -- END;
--- CREATE TRIGGER after_insert_transactions_expenses AFTER INSERT ON Transactions
--- FOR EACH ROW
--- WHEN NEW.type = 'Expenses'
--- BEGIN
---     INSERT INTO Expenses(type, Transactions_id)
---     VALUES (NEW.type, NEW.id);
--- END;
+CREATE TRIGGER after_insert_transactions_expenses AFTER INSERT ON Transactions
+FOR EACH ROW
+WHEN NEW.type = 'Expenses'
+BEGIN
+    INSERT INTO Expenses(type, Transactions_id)
+    VALUES (NEW.type, NEW.id);
+END;
 -- CREATE TRIGGER after_insert_transactions_incomes AFTER INSERT ON Transactions
 -- FOR EACH ROW
 -- WHEN NEW.type = 'Incomes'
@@ -111,11 +112,17 @@ DROP TABLE Transactions;
 --DROP TRIGGER after_insert_transactions;
 --DROP TRIGGER after_insert_transactions_debts;
 --DROP TRIGGER after_insert_transactions_expenses;
-
-INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Utiles de Aseo',30000.0,'2024-09-06','Alta','Buys','Aseo Personal',0,'2024-09-06',1);
+INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Recibo',16500.0,'2024-06-12','Ninguna','Expenses','Casa',0,'2024-06-12',1);
 --DELETE FROM Transactions WHERE id>4;
---SELECT * FROM Transactions;
+SELECT * FROM Transactions;
 --SELECT * FROM Buys;
+--SELECT * FROM Incomes;
+SELECT * FROM Expenses;
+-- SELECT * FROM Buys;
+-- SELECT * FROM Debts;
+-- SELECT * FROM Cash;
+-- SELECT * FROM Users;
+
 --SELECT * FROM Users;
 --CREATE INDEX IF NOT EXISTS idx_buys_transactions_id ON Buys(Transactions_id);
 --CREATE INDEX IF NOT EXISTS idx_transactions_id ON Transactions(id);
