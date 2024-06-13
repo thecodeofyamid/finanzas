@@ -88,8 +88,26 @@ button{
   margin: 4%;
   width: auto !important;
   border-radius: 10px;
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
+}
+#buys-container{
+  background:#10213f;
+}
+#incomes-container{
+  background: #0f5c0f; 
+  margin-left: 5%;
+}
+#expenses-container{
+  margin-left: 5%;
+  background: rgb(255, 160, 36);
+}
+#debts-container{
+  background: rgb(255, 47, 36);
+}
+
+#buys-container,#incomes-container,#expenses-container{
+  overflow:auto;
 }
 .transactions li{
   list-style: none;
