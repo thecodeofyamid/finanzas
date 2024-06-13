@@ -34,7 +34,7 @@ export default function BasicGrid() {
     }
   }
   return (
-    <Box sx={{ flexGrow: 1 ,height:'100vh'}}>
+    <Box sx={{ flexGrow: 2 ,height:'100vh'}}>
       <Grid container spacing={4} sx={{padding:'3%', width:'100%',height:'100vh'}}>
         <Grid item xs={4}>
           <Item id="formus" sx={{ height: '100%', borderRadius: '10px'}}>

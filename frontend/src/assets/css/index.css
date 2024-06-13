@@ -3,14 +3,132 @@
   margin:0;
   box-sizing: border-box;
 }
+#root{
+  background: #333;
+}
 body,#root{
   width: 100%;
   height: 100vh;
 }
-form{
-  padding: 2%;
+h1,h2{
+  width: 100%;
+  text-align: center;
+  padding: 4%;
+  font-size: 30px !important;
 }
+#form-principal{background: black; width: 100%; height: 120vh;padding: 2%;overflow: auto; border: 1px solid black; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+body::-webkit-scrollbar{
+  background-color: rgb(160, 160, 160);
+  width: 14px;
+  height: 14px;
+}
+body::-webkit-scrollbar-thumb{
+  background-color: rgb(41, 41, 41);
+}
+
+#form-principal::-webkit-scrollbar{
+   background: #3f3f3f;
+   width: 12px;
+   height: 12px;
+}
+#form-principal::-webkit-scrollbar-thumb{
+  background-color: #141414;
+}
+#form-principal::-webkit-scrollbar-button{
+  background-color: none;
+}
+
 input{
   text-align: center;
-  height: 50px !important;
+  height: 40px !important;
+  background: #505050;
+  color: #e7e7e7;
+  font-size: 15px !important;
+}
+
+input::placeholder{
+  color: #b3b3b3;
+}
+#results{
+  background: black;
+  width: 100%;
+  padding: 2%;
+  color: #c4c4c4;
+  max-height: 100vh;
+  overflow: auto;
+}
+
+#results::-webkit-scrollbar{
+  background: rgb(63, 63, 63);
+  width: 12px;
+  height: 12px;
+}
+#results::-webkit-scrollbar-thumb{
+  background-color: #1d1d1d;
+}
+#results::-webkit-scrollbar-button{
+ background-color: none;
+}
+#results p{
+  font-size: 0.7rem;
+  color: white;
+}
+button{
+  font-size: 15px !important;
+}
+.transactions{
+  background: #1d1d1d;
+  box-shadow:
+  0 0 7px #ffffff1a,
+  0 0 14px #ffffff1a,
+  0 0 21px #ffffff1a,
+  0 0 28px #ffffff1a,
+  0 0 35px #ffffff1a;
+  padding: 5%;
+  margin: 4%;
+  width: auto !important;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.transactions li{
+  list-style: none;
+}
+#container{
+  width: 100% !important;
+  height: auto;
+}
+#content{
+  width: 100%;
+  padding: 0;
+  display: flex;
+}
+@media(width<890px){
+  #form-principal{width: 100% ; height:100vh; overflow: auto;}
+  #results{width: 100%; grid-template-columns: 1fr !important; grid-template-rows: 1fr !important;}
+  #container{
+    flex-direction: column;
+    height: auto;
+  }
+  #content{
+    flex-direction: column;
+  }
+  h2{
+    grid-column: 1/-1 !important;
+    grid-row: 2 !important;
+  }
+}
+#form-home{
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 80%;
+}
+@media(height<500px){
+  #form-home{
+    grid-template-columns: 1fr 1fr;
+    gap: 10%;
+  }
+  #button-submit{
+    grid-column: 1/-1;
+  }
 }

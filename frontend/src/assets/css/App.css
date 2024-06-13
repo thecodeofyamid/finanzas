@@ -1,3 +1,4 @@
+
 #formus,#results{
   margin: 2%;
   border: 1px solid rgba(0, 0, 0,0.5);
@@ -9,7 +10,7 @@
 }
 
 .css-1rim0pk-MuiGrid-root{
-  background: #e0e0e0;
+  background: #cccccc;
   margin: 0 !important;
   padding-bottom: 5% !important;
   padding-top:0 !important;
@@ -30,4 +31,15 @@
 }
 select{
   padding: 2%;
+}
+table{
+  margin-left:2%;
+}
+table,thead,th,tr,td{
+  border: 1px solid black !important;
+  text-align: center;
+}
+thead,th{
+  background: rgb(2, 27, 139);
+  color: rgb(245, 245, 245);
 }
