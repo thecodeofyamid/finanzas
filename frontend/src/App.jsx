@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const HTTP_ENDPOINT = 'https://potential-robot-jjj6j66p5vpw3vv7-4000.app.github.dev';
-const WS_ENDPOINT = 'wss://potential-robot-jjj6j66p5vpw3vv7-4000.app.github.dev/ws';
+const HTTP_ENDPOINT = 'http://localhost:4000';
+const WS_ENDPOINT = 'ws://localhost:4000/';
 
 function App() {
     const [inputData, setInputData] = useState({

@@ -1,7 +1,7 @@
 let socket;
 
 function connectWebSocket() {
-    socket = new WebSocket('wss://potential-robot-jjj6j66p5vpw3vv7-4000.app.github.dev/ws'); // Ajusta la URL según sea necesario
+    socket = new WebSocket('ws://localhost:4000'); // Ajusta la URL según sea necesario
 
     // Evento cuando se abre la conexión
     socket.addEventListener('open', (event) => {

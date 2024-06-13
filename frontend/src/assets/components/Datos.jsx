@@ -5,7 +5,7 @@ const Datos = () => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const ws = new WebSocket('wss://potential-robot-jjj6j66p5vpw3vv7-3001.app.github.dev');
+    const ws = new WebSocket('wss://localhost:4000');
     setSocket(ws);
 
     ws.onopen = () => {
