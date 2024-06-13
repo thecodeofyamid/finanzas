@@ -94,6 +94,8 @@ button{
 #buys-container{
   background:#10213f;
   grid-row: 1/3 !important;
+  overflow: auto;
+  max-height: 100vh;
 }
 #incomes-container{
   background: #0f5c0f; 

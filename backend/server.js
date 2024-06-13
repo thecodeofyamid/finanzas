@@ -80,7 +80,7 @@ const ws = new WebSocketServer({ server });
 
 ws.on('connection', ws => {
     console.log('WebSocket connected');
-    ws.send('Hola cliente ❤✨')
+    ws.send(JSON.stringify({ message: 'Hola cliente ❤✨' }));
     ws.on('error', error => console.error('WebSocket error:', error));
     ws.on('message', message => console.log(`Message from Client: ${message}`));
     ws.on('close', () => console.log('WebSocket connection closed'));

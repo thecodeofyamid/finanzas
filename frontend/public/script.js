@@ -1,7 +1,7 @@
 let socket;
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://192.168.18.141:4000'); // Ajusta la URL según sea necesario
+    socket = new WebSocket('wss://potential-robot-jjj6j66p5vpw3vv7-4000.app.github.dev/ws'); // Ajusta la URL según sea necesario
 
     // Evento cuando se abre la conexión
     socket.addEventListener('open', (event) => {
@@ -12,7 +12,12 @@ function connectWebSocket() {
 
     // Evento cuando se recibe un mensaje del servidor
     socket.addEventListener('message', (event) => {
-        console.log('Message from server:', event.data);
+        try {
+            const data = JSON.parse(event.data);
+            console.log(data.message);  // Muestra el mensaje en un alert
+        } catch (error) {
+            console.error('Error parsing JSON data:', error);
+        }
         // Aquí puedes manejar el mensaje recibido, por ejemplo, actualizar la interfaz de usuario
     });
 
