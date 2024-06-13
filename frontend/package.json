@@ -11,15 +11,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.18",
-    "antd": "^5.17.3",
+    "antd": "^5.18.1",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "fetch": "^1.1.0",
+    "framer-motion": "^11.2.10",
     "fs": "^0.0.1-security",
     "idb": "^8.0.0",
     "path": "^0.12.7",

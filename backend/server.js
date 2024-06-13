@@ -4,23 +4,39 @@ const cors = require('cors');
 const { WebSocketServer, WebSocket } = require('ws');
 const bodyParser = require('body-parser');
 
-// Creando app express y definiendo un puerto
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Configurando CORS
 app.use(cors());
 app.use(bodyParser.json());
 
-// Accediendo a la base de datos SQLite
 const db = new sqlite3.Database('./mydatabase.sqlite');
 
-// Creación de la tabla Transactions si no existe
 db.serialize(() => {
-    db.run("CREATE TABLE IF NOT EXISTS Transactions (id INTEGER PRIMARY KEY, description TEXT, price REAL, date TEXT, importance TEXT, type TEXT, category TEXT, ready TEXT, deadline TEXT)");
+    db.run(`CREATE TABLE IF NOT EXISTS Transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        description TEXT,
+        price REAL,
+        date TEXT,
+        importance TEXT,
+        type TEXT,
+        category TEXT,
+        ready INTEGER,
+        deadline TEXT,
+        Users_id INTEGER,
+        FOREIGN KEY(Users_id) REFERENCES Users(id)
+    )`);
+    
+    db.run(`CREATE TABLE IF NOT EXISTS Incomes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT,
+        Transactions_id INTEGER,
+        FOREIGN KEY(Transactions_id) REFERENCES Transactions(id)
+    )`);
+    
+    // Similar for Expenses, Buys, Debts
 });
 
-// Ruta para consultar todas las transacciones realizadas
 app.get('/transactions', (req, res) => {
     db.all("SELECT * FROM Transactions", (err, rows) => {
         if (err) {
@@ -30,18 +46,23 @@ app.get('/transactions', (req, res) => {
     });
 });
 
-// Ruta para agregar nuevas transacciones
 app.post('/add_transactions', (req, res) => {
-    const { description, price, date, importance, type, category, ready, deadline } = req.body;
-    db.run("INSERT INTO Transactions (description, price, date, importance, type, category, ready, deadline) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [description, price, date, importance, type, category, ready, deadline],
+    const { description, price, date, importance, type, category, ready, deadline, Users_id } = req.body;
+    db.run(`INSERT INTO Transactions (description, price, date, importance, type, category, ready, deadline, Users_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [description, price, date, importance, type, category, ready, deadline, Users_id],
         function (err) {
             if (err) {
                 return res.status(500).json({ error: err.message });
             }
-            const newTransaction = { id: this.lastID, description, price, date, importance, type, category, ready, deadline };
+            const newTransaction = { id: this.lastID, description, price, date, importance, type, category, ready, deadline, Users_id };
 
-            // Enviar la nueva transacción a todos los clientes conectados por WebSocket
+            // Handle type-specific table insertions
+            if (type === 'Incomes') {
+                db.run(`INSERT INTO Incomes (type, Transactions_id) VALUES (?, ?)`, [type, this.lastID]);
+            }
+            // Similar for Expenses, Buys, Debts
+
+            // Notify WebSocket clients
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify(newTransaction));
@@ -51,39 +72,15 @@ app.post('/add_transactions', (req, res) => {
         });
 });
 
-// Inicia el servidor Express
 const server = app.listen(PORT, () => {
-    console.log(`Servidor Express corriendo en el puerto ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
 
-// WebSocket Server configuración
 const wss = new WebSocketServer({ server });
 
 wss.on('connection', ws => {
     console.log('WebSocket connected');
-
-    // Manejo de errores
-    ws.on('error', error => {
-        console.error('WebSocket error:', error);
-    });
-
-    // Envía un mensaje de ping periódicamente para mantener la conexión activa
-    const pingInterval = setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.ping();
-        }
-    }, 30000); // Envía un ping cada 30 segundos
-
-    // Maneja los mensajes entrantes
-    ws.on('message', message => {
-        console.log(`Received message: ${message}`);
-        ws.send('Hello client ☀️🍀')
-        // Procesa los mensajes entrantes
-    });
-
-    // Detiene el intervalo de ping cuando se cierra la conexión
-    ws.on('close', () => {
-        console.log('WebSocket connection closed');
-        clearInterval(pingInterval);
-    });
+    ws.on('error', error => console.error('WebSocket error:', error));
+    ws.on('message', message => console.log(`Received message: ${message}`));
+    ws.on('close', () => console.log('WebSocket connection closed'));
 });
