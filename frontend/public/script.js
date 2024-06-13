@@ -1,7 +1,7 @@
 let socket;
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://localhost:4000'); // Ajusta la URL según sea necesario
+    socket = new WebSocket('ws://192.168.18.141:4000'); // Ajusta la URL según sea necesario
 
     // Evento cuando se abre la conexión
     socket.addEventListener('open', (event) => {

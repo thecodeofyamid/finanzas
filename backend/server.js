@@ -63,7 +63,7 @@ app.post('/add_transactions', (req, res) => {
             // Similar for Expenses, Buys, Debts
 
             // Notify WebSocket clients
-            wss.clients.forEach(client => {
+            ws.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify(newTransaction));
                 }
@@ -76,11 +76,12 @@ const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-const wss = new WebSocketServer({ server });
+const ws = new WebSocketServer({ server });
 
-wss.on('connection', ws => {
+ws.on('connection', ws => {
     console.log('WebSocket connected');
+    ws.send('Hola cliente ❤✨')
     ws.on('error', error => console.error('WebSocket error:', error));
-    ws.on('message', message => console.log(`Received message: ${message}`));
+    ws.on('message', message => console.log(`Message from Client: ${message}`));
     ws.on('close', () => console.log('WebSocket connection closed'));
 });
