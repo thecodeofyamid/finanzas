@@ -56,12 +56,6 @@ app.post('/add_transactions', (req, res) => {
             }
             const newTransaction = { id: this.lastID, description, price, date, importance, type, category, ready, deadline, Users_id };
 
-            // Handle type-specific table insertions
-            if (type === 'Incomes') {
-                db.run(`INSERT INTO Incomes (type, Transactions_id) VALUES (?, ?)`, [type, this.lastID]);
-            }
-            // Similar for Expenses, Buys, Debts
-
             // Notify WebSocket clients
             ws.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {

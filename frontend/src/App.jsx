@@ -4,26 +4,41 @@ import axios from 'axios';
 const HTTP_ENDPOINT = 'https://potential-robot-jjj6j66p5vpw3vv7-4000.app.github.dev';
 const WS_ENDPOINT = 'wss://potential-robot-jjj6j66p5vpw3vv7-4000.app.github.dev/ws';
 
+const formatPrice = (price) => {
+    return Number(price).toLocaleString('es-ES');
+};
+
+const getColor = (type) => {
+    switch (type) {
+        case 'Buys':
+            return ['#eeeeee','blue'];
+        case 'Incomes':
+            return ['#d9d9d9','green'];
+        case 'Expenses':
+            return ['#eeeeee','red'];
+        case 'Debts':
+            return ['#d9d9d9','orange'];
+        default:
+            return ['black','black'];
+    }
+};
+
+const TransactionList = ({ transactions, type }) => {
+    return (
+        <div>
+            <div style={{background: getColor(type)[1],color:'#eee',margin:'4%'}}><h2>{type}</h2></div>
+            {transactions.filter(transaction => transaction.type === type).map((transaction, index) => (
+                <div key={index} style={{ background: getColor(transaction.type)[0], padding: '2%', margin: '2.5%', border: '5px solid '+ getColor(transaction.type)[1]}}>
+                    <div><h6 style={{color: 'black'}}>${formatPrice(transaction.price)}</h6></div>
+                    <div><p>{transaction.description}</p></div>
+                    <div><button style={{background:'grey'}}>Borrar</button></div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
 function App() {
-    const formatPrice = (price) => {
-        return Number(price).toLocaleString('es-ES');
-    };
-
-    const getColor = (type) => {
-        switch (type) {
-            case 'Buys':
-                return 'blue';
-            case 'Incomes':
-                return 'green';
-            case 'Expenses':
-                return '#ff5100';
-            case 'Debts':
-                return '#c90202';
-            default:
-                return 'black';
-        }
-    };
-
     const [inputData, setInputData] = useState({
         description: '',
         price: '',
@@ -34,12 +49,17 @@ function App() {
         ready: '',
         deadline: ''
     });
-    
+    const [totals, setTotals] = useState({
+        Buys: 0,
+        Incomes: 0,
+        Expenses: 0,
+        Debts: 0,
+        General: 0
+    }); 
     const [transactions, setTransactions] = useState([]);
-
     const isInitialLoad = useRef(true);
     const wsRef = useRef(null);
-
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -80,6 +100,10 @@ function App() {
         };
     }, []);
 
+    useEffect(()=>{
+        calculateTotals();
+    },[transactions])
+    
     const getUniqueTransactions = (transactionsArray) => {
         const seen = new Set();
         return transactionsArray.filter(transaction => {
@@ -132,58 +156,62 @@ function App() {
             alert('Error inserting transaction. Please check your data and try again.');
         }
     };
+    
+    const calculateTotals = () => {
+        const totals = transactions.reduce((acc, transaction) => {
+            acc[transaction.type] = (acc[transaction.type] || 0) + parseFloat(transaction.price);
+            return acc;
+        }, {});
+
+        setTotals({
+            Buys: totals.Buys || 0,
+            Incomes: totals.Incomes || 0,
+            Expenses: totals.Expenses || 0,
+            Debts: totals.Debts || 0,
+            General: (totals.Incomes-totals.Expenses) ||0
+        });
+    };
 
     return (
         <div id="container" style={{ background: '#333', display: 'flex', flexDirection: 'flex', gap: '5%', alignItems: 'start', justifyContent: 'center', padding: '0%' }}>
             <div id="content">
-                <div id="results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '5% 1fr 1fr 1fr', gap: '3%', alignItems: 'start', justifyContent: 'center' }} className="results">
-                    <form id="form-principal" style={{ gridColumn: '1', gridRow: '1 / -1' }} onSubmit={handleSubmit} >
-                        <h1 style={{ color: '#fff' }}>Transacciones</h1>
-                        <div id="form-home">
-                            <input type="text" name="description" value={inputData.description} onChange={handleChange} placeholder="Description" />
-                            <input type="text" name="price" value={inputData.price} onChange={handleChange} placeholder="Price" />
-                            <input type="text" name="date" value={inputData.date} onChange={handleChange} placeholder="Date (YYYY-MM-DD)" />
-                            <input type="text" name="importance" value={inputData.importance} onChange={handleChange} placeholder="Importance (Alta/Media/Baja)" />
-                            <input type="text" name="type" value={inputData.type} onChange={handleChange} placeholder="Type" />
-                            <input type="text" name="category" value={inputData.category} onChange={handleChange} placeholder="Category" />
-                            <input type="number" name="ready" value={inputData.ready} onChange={handleChange} placeholder="Ready (true/false)" />
-                            <input type="text" name="deadline" value={inputData.deadline} onChange={handleChange} placeholder="Deadline (YYYY-MM-DD)" />
-                            <div id="button-submit" style={{ width: '100%' }}><button type="submit">Insert Transaction</button></div>
-                        </div>
-                    </form>
-                    <div style={{gridColumn: '2 / -1', gridRow:'1 / -1',display: 'grid', gridTemplateColumns:'1fr 1fr 1fr', gridTemplateRows:'7% 1fr 1fr 1fr', padding:'2%'}}>
-                        <div style={{background:'white', color:'black', height:'80%',textAlign:'center', gridRow:'1', gridColumn:'3', marginLeft: '5%'}}><h4>Total</h4></div>
-                        <div id="buys-container" style={{gridRow:'2', gridColumn:'1/ 3'}}>
-                            {transactions.filter(transaction => transaction.type === 'Buys').map((transaction, index) => (
-                                <div key={index} style={{ background: getColor(transaction.type), padding: '2%', margin: '5%' }}>
-                                    <div><h6>${formatPrice(transaction.price)}</h6></div>
-                                    <div><p>{transaction.description}</p></div>
+                <div id="results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '5% 1fr 1fr 1fr', gap: '0%', alignItems: 'start', justifyContent: 'center' }} className="results">
+                    <div style={{gridColumn: '1 / -1', gridRow:'1 / -1',display: 'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gridTemplateRows:'12% 1fr 1fr', padding:'2%',gap:'2%'}}>
+                        <form id="form-principal" style={{ gridColumn: '1', gridRow: '1/-1' }} onSubmit={handleSubmit} >
+                            <h1 style={{ color: '#fff' }}>Transacciones</h1>
+                            <div id="form-home">
+                                <input type="text" name="description" value={inputData.description} onChange={handleChange} placeholder="Description" />
+                                <input type="text" name="price" value={inputData.price} onChange={handleChange} placeholder="Price" />
+                                <input type="text" name="date" value={inputData.date} onChange={handleChange} placeholder="Date (YYYY-MM-DD)" />
+                                <input type="text" name="importance" value={inputData.importance} onChange={handleChange} placeholder="Importance (Alta/Media/Baja)" />
+                                <input type="text" name="type" value={inputData.type} onChange={handleChange} placeholder="Type" />
+                                <input type="text" name="category" value={inputData.category} onChange={handleChange} placeholder="Category" />
+                                <input type="number" name="ready" value={inputData.ready} onChange={handleChange} placeholder="Ready (true/false)" />
+                                <input type="text" name="deadline" value={inputData.deadline} onChange={handleChange} placeholder="Deadline (YYYY-MM-DD)" />
+                                <div id="button-submit" style={{ width: '100%' }}><button type="submit">Insert Transaction</button></div>
+                            </div>
+                        </form>
+                        <div style={{background:'white', color:'black', height:'auto',textAlign:'left',paddingLeft:'5%', gridRow:'1', gridColumn:'4',display:'flex', flexDirection:'column'}}>
+                            <div style={{textAlign:'center'}}><h4>Caja</h4></div>
+                            <div style={{display:'grid', width:'100%',height:'100%', gridTemplateColumns:'1fr',justifyContent:'center',alignItems:'center',gap:'2%',overflow:'auto'}}>
+                                <div>
+                                    <div> <p>Ingresos:<br></br><span style={{fontSize:'1rem',color:'green'}}> <strong>$ {formatPrice(totals.Incomes)}</strong></span></p></div>
+                                    <div> <p>Egresos:<br></br><span style={{fontSize:'1rem', color:'red'}}> <strong>$ {formatPrice(totals.Expenses)}</strong></span></p></div>
+                                    <div> <p>General<br></br><span style={{fontSize:'1rem'}}> <strong>$ {formatPrice(totals.General)}</strong></span></p></div>
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                        <div id="incomes-container" style={{gridRow:'2', gridColumn:'3'}}>
-                            {transactions.filter(transaction => transaction.type === 'Incomes').map((transaction, index) => (
-                                <div key={index} style={{ background: getColor(transaction.type), padding: '2%', margin: '5%' }}>
-                                    <div><h6>${formatPrice(transaction.price)}</h6></div>
-                                    <div><p>{transaction.description}</p></div>
-                                </div>
-                            ))}
+                        <div id="buys-container" style={{gridRow:'2', gridColumn:'2/ 4'}}>
+                            <TransactionList transactions={transactions} type="Buys" />
                         </div>
-                        <div id="expenses-container" style={{gridRow:'3', gridColumn:'3'}}>
-                            {transactions.filter(transaction => transaction.type === 'Expenses').map((transaction, index) => (
-                                <div key={index} style={{ background: getColor(transaction.type), padding: '2%', margin: '5%' }}>
-                                    <div><h6>${formatPrice(transaction.price)}</h6></div>
-                                    <div><p>{transaction.description}</p></div>
-                                </div>
-                            ))}
+                        <div id="incomes-container" style={{gridRow:'2', gridColumn:'4'}}>
+                            <TransactionList transactions={transactions} type="Incomes" />
                         </div>
-                        <div id="debts-container" style={{gridRow:'3', gridColumn:'1/3'}}>
-                            {transactions.filter(transaction => transaction.type === 'Debts').map((transaction, index) => (
-                                <div key={index} style={{ background: getColor(transaction.type), padding: '2%', margin: '5%' }}>
-                                    <div><h6>${formatPrice(transaction.price)}</h6></div>
-                                    <div><p>{transaction.description}</p></div>
-                                </div>
-                            ))}
+                        <div id="expenses-container" style={{gridRow:'3', gridColumn:'4'}}>
+                            <TransactionList transactions={transactions} type="Expenses" />
+                        </div>
+                        <div id="debts-container" style={{gridRow:'3', gridColumn:'2/4'}}>
+                            <TransactionList transactions={transactions} type="Debts" />
                         </div>
                     </div>
                 </div>
