@@ -110,12 +110,41 @@ CREATE TABLE IF NOT EXISTS "Debts" (
 --     INSERT INTO Incomes(type, Transactions_id)
 --     VALUES (NEW.type,NEW.id);
 -- END;
--- CREATE TRIGGER after_delete_buys AFTER DELETE ON Buys
+
+
+-- DROP TRIGGER IF EXISTS after_delete_transaction;
+-- CREATE TRIGGER after_delete_transaction AFTER DELETE ON Transactions
+-- FOR EACH ROW 
+-- WHEN OLD.type = 'Buys'
+-- BEGIN
+--     DELETE FROM Buys WHERE Transactions_id = OLD.id;
+-- END;
+-- DROP TRIGGER IF EXISTS after_delete_transaction_incomes;
+-- CREATE TRIGGER after_delete_transaction_expenses AFTER DELETE ON Transactions
+-- FOR EACH ROW 
+-- WHEN OLD.type = 'Expenses'
+-- BEGIN
+--     DELETE FROM Expenses WHERE Transactions_id = OLD.id;
+-- END;
+-- CREATE TRIGGER after_delete_transaction_debts AFTER DELETE ON Transactions
+-- FOR EACH ROW 
+-- WHEN OLD.type = 'Debts'
+-- BEGIN
+--     DELETE FROM Debts WHERE Transactions_id = OLD.id;
+-- END;
+-- CREATE TRIGGER after_delete_expenses AFTER DELETE ON Expenses
 -- FOR EACH ROW
 -- BEGIN
---     DELETE FROM Transactions WHERE id = OLD.Transactions_id;
+--     DELETE FROM Expenses WHERE id = OLD.Transactions_id;
 -- END;
--- COMMIT;
+
+DELETE FROM Transactions WHERE id=23;
+-- CREATE TRIGGER after_delete_incomes AFTER DELETE ON Incomes
+-- FOR EACH ROW
+-- BEGIN
+--     DELETE FROM Incomes WHERE id = OLD.Transactions_id;
+-- END;
+
 
 -- DROP TABLE Transactions;
 -- DROP TRIGGER after_insert_transactions_incomes;
@@ -123,11 +152,10 @@ CREATE TABLE IF NOT EXISTS "Debts" (
 -- DROP TRIGGER after_insert_transactions_debts;
 -- DROP TRIGGER after_insert_transactions_expenses;
 --INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Computador',3000000.0,'2024-06-12','Alta','Buys','Tech',0,'2024-06-12',1);
--- DELETE FROM Transactions WHERE id>0;
---DELETE FROM Buys WHERE Transactions_id=1;
+-- DELETE FROM Transactions WHERE id=16;
 -- DELETE FROM Expenses WHERE id>0;
--- DELETE FROM Transactions WHERE id>0;
-
+--DELETE FROM Incomes WHERE Transactions_id=5;
+--DELETE FROM Buys WHERE id=2;
 --SELECT * FROM Transactions;
 --SELECT * FROM Buys;
 SELECT * FROM Incomes;

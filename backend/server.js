@@ -34,7 +34,7 @@ db.serialize(() => {
         FOREIGN KEY(Transactions_id) REFERENCES Transactions(id)
     )`);
     
-    // Similar for Expenses, Buys, Debts
+    // Similar para Expenses, Buys, Debts
 });
 
 app.get('/transactions', (req, res) => {
@@ -56,14 +56,40 @@ app.post('/add_transactions', (req, res) => {
             }
             const newTransaction = { id: this.lastID, description, price, date, importance, type, category, ready, deadline, Users_id };
 
-            // Notify WebSocket clients
+            // Notificar a los clientes de WebSocket
             ws.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify(newTransaction));
+                    client.send(JSON.stringify({ action: 'add', transaction: newTransaction }));
                 }
             });
             res.json(newTransaction);
         });
+});
+
+app.post('/delete_transaction', (req, res) => {
+    const { id } = req.body;
+
+    db.run(`DELETE FROM Transactions WHERE id = ?`, [id], function(err) {
+        if (err) {
+            console.error('Error executing query:', err.message);
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (this.changes === 0) {
+            console.warn('Transaction not found:', id);
+            return res.status(404).json({ error: 'Transaction not found' });
+        }
+
+        // Notificar a los clientes de WebSocket
+        ws.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ action: 'delete', transaction: { id } }));
+            }
+        });
+
+        console.log('Transaction deleted:', id);
+        res.json({ message: 'Transaction deleted', transaction: { id } });
+    });
 });
 
 const server = app.listen(PORT, () => {
@@ -74,7 +100,6 @@ const ws = new WebSocketServer({ server });
 
 ws.on('connection', ws => {
     console.log('WebSocket connected');
-    ws.send(JSON.stringify({ message: 'Hola cliente ❤✨' }));
     ws.on('error', error => console.error('WebSocket error:', error));
     ws.on('message', message => console.log(`Message from Client: ${message}`));
     ws.on('close', () => console.log('WebSocket connection closed'));

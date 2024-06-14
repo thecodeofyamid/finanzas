@@ -4,6 +4,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "http": "^0.0.1-security",
+    "react-router-dom": "^6.23.1",
     "sqlite3": "^5.1.7",
     "ws": "^8.17.0"
   }

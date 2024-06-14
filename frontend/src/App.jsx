@@ -11,27 +11,43 @@ const formatPrice = (price) => {
 const getColor = (type) => {
     switch (type) {
         case 'Buys':
-            return ['#eeeeee','blue'];
+            return ['#eeeeee', 'blue'];
         case 'Incomes':
-            return ['#d9d9d9','green'];
+            return ['#d9d9d9', 'green'];
         case 'Expenses':
-            return ['#eeeeee','red'];
+            return ['#eeeeee', 'red'];
         case 'Debts':
-            return ['#d9d9d9','orange'];
+            return ['#d9d9d9', 'orange'];
         default:
-            return ['black','black'];
+            return ['black', 'black'];
     }
 };
 
-const TransactionList = ({ transactions, type }) => {
+const TransactionList = ({ transactions, type, setTransactions }) => {
+    const deleteTransaction = async (id) => {
+        try {
+            const response = await axios.post(`${HTTP_ENDPOINT}/delete_transaction`, { id });
+            if (response.data.transaction) {
+                const updatedTransactions = transactions.filter(transaction => transaction.id !== id);
+                setTransactions(updatedTransactions);
+                alert('Transaction deleted successfully');
+            } else {
+                alert('Transaction not found');
+            }
+        } catch (error) {
+            console.error('Error deleting transaction:', error);
+            alert('Error deleting transaction. Please try again.');
+        }
+    };
+
     return (
         <div>
-            <div style={{background: getColor(type)[1],color:'#eee',margin:'4%'}}><h2>{type}</h2></div>
+            <div style={{ background: getColor(type)[1], color: '#eee', margin: '4%' }}><h2>{type}</h2></div>
             {transactions.filter(transaction => transaction.type === type).map((transaction, index) => (
-                <div key={index} style={{ background: getColor(transaction.type)[0], padding: '2%', margin: '2.5%', border: '5px solid '+ getColor(transaction.type)[1]}}>
-                    <div><h6 style={{color: 'black'}}>${formatPrice(transaction.price)}</h6></div>
+                <div id={transaction.id} key={index} style={{ background: getColor(transaction.type)[0], padding: '2%', margin: '2.5%', border: '5px solid ' + getColor(transaction.type)[1] }}>
+                    <div><h6 style={{ color: 'black' }}>${formatPrice(transaction.price)}</h6></div>
                     <div><p>{transaction.description}</p></div>
-                    <div><button style={{background:'grey'}}>Borrar</button></div>
+                    <button style={{ background: 'grey' }} onClick={() => deleteTransaction(transaction.id)}>Borrar</button>
                 </div>
             ))}
         </div>
@@ -55,11 +71,11 @@ function App() {
         Expenses: 0,
         Debts: 0,
         General: 0
-    }); 
+    });
     const [transactions, setTransactions] = useState([]);
     const isInitialLoad = useRef(true);
     const wsRef = useRef(null);
-    
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -72,7 +88,7 @@ function App() {
             }
         };
         fetchData();
-        
+
         wsRef.current = new WebSocket(WS_ENDPOINT);
 
         wsRef.current.onopen = () => {
@@ -83,10 +99,11 @@ function App() {
             try {
                 const data = JSON.parse(message.data);
                 if (!isInitialLoad.current) {
-                    setTransactions((prevTransactions) => {
-                        const newTransactions = getUniqueTransactions([...prevTransactions, data]);
-                        return newTransactions;
-                    });
+                    if (data.action === 'add') {
+                        setTransactions((prevTransactions) => getUniqueTransactions([...prevTransactions, data.transaction]));
+                    } else if (data.action === 'delete') {
+                        setTransactions((prevTransactions) => prevTransactions.filter(transaction => transaction.id !== data.transaction.id));
+                    }
                 }
             } catch (error) {
                 console.error('Error parsing JSON data:', error);
@@ -100,10 +117,10 @@ function App() {
         };
     }, []);
 
-    useEffect(()=>{
+    useEffect(() => {
         calculateTotals();
-    },[transactions])
-    
+    }, [transactions]);
+
     const getUniqueTransactions = (transactionsArray) => {
         const seen = new Set();
         return transactionsArray.filter(transaction => {
@@ -137,10 +154,7 @@ function App() {
         try {
             const response = await axios.post(`${HTTP_ENDPOINT}/add_transactions`, inputDataCopy);
             const newTransaction = response.data;
-            setTransactions((prevTransactions) => {
-                const newTransactions = getUniqueTransactions([...prevTransactions, newTransaction]);
-                return newTransactions;
-            });
+            setTransactions((prevTransactions) => getUniqueTransactions([...prevTransactions, newTransaction]));
             setInputData({
                 description: '',
                 price: '',
@@ -156,7 +170,7 @@ function App() {
             alert('Error inserting transaction. Please check your data and try again.');
         }
     };
-    
+
     const calculateTotals = () => {
         const totals = transactions.reduce((acc, transaction) => {
             acc[transaction.type] = (acc[transaction.type] || 0) + parseFloat(transaction.price);
@@ -168,7 +182,7 @@ function App() {
             Incomes: totals.Incomes || 0,
             Expenses: totals.Expenses || 0,
             Debts: totals.Debts || 0,
-            General: (totals.Incomes-totals.Expenses) ||0
+            General: (totals.Incomes - totals.Expenses) || 0
         });
     };
 
@@ -176,8 +190,8 @@ function App() {
         <div id="container" style={{ background: '#333', display: 'flex', flexDirection: 'flex', gap: '5%', alignItems: 'start', justifyContent: 'center', padding: '0%' }}>
             <div id="content">
                 <div id="results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '5% 1fr 1fr 1fr', gap: '0%', alignItems: 'start', justifyContent: 'center' }} className="results">
-                    <div style={{gridColumn: '1 / -1', gridRow:'1 / -1',display: 'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gridTemplateRows:'12% 1fr 1fr', padding:'2%',gap:'2%'}}>
-                        <form id="form-principal" style={{ gridColumn: '1', gridRow: '1/-1' }} onSubmit={handleSubmit} >
+                    <div style={{ gridColumn: '1 / -1', gridRow: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '12% 1fr 1fr', padding: '2%', gap: '2%' }}>
+                        <form id="form-principal" style={{ gridColumn: '1', gridRow: '1/-1' }} onSubmit={handleSubmit}>
                             <h1 style={{ color: '#fff' }}>Transacciones</h1>
                             <div id="form-home">
                                 <input type="text" name="description" value={inputData.description} onChange={handleChange} placeholder="Description" />
@@ -191,27 +205,27 @@ function App() {
                                 <div id="button-submit" style={{ width: '100%' }}><button type="submit">Insert Transaction</button></div>
                             </div>
                         </form>
-                        <div style={{background:'white', color:'black', height:'auto',textAlign:'left',paddingLeft:'5%', gridRow:'1', gridColumn:'4',display:'flex', flexDirection:'column'}}>
-                            <div style={{textAlign:'center'}}><h4>Caja</h4></div>
-                            <div style={{display:'grid', width:'100%',height:'100%', gridTemplateColumns:'1fr',justifyContent:'center',alignItems:'center',gap:'2%',overflow:'auto'}}>
+                        <div style={{ background: 'white', color: 'black', height: 'auto', textAlign: 'left', paddingLeft: '5%', gridRow: '1', gridColumn: '4', display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ textAlign: 'center' }}><h4>Caja</h4></div>
+                            <div style={{ display: 'grid', width: '100%', height: '100%', gridTemplateColumns: '1fr', justifyContent: 'center', alignItems: 'center', gap: '2%', overflow: 'auto' }}>
                                 <div>
-                                    <div> <p>Ingresos:<br></br><span style={{fontSize:'1rem',color:'green'}}> <strong>$ {formatPrice(totals.Incomes)}</strong></span></p></div>
-                                    <div> <p>Egresos:<br></br><span style={{fontSize:'1rem', color:'red'}}> <strong>$ {formatPrice(totals.Expenses)}</strong></span></p></div>
-                                    <div> <p>General<br></br><span style={{fontSize:'1rem'}}> <strong>$ {formatPrice(totals.General)}</strong></span></p></div>
+                                    <div> <p>Ingresos:<br /><span style={{ fontSize: '1rem', color: 'green' }}> <strong>$ {formatPrice(totals.Incomes)}</strong></span></p></div>
+                                    <div> <p>Egresos:<br /><span style={{ fontSize: '1rem', color: 'red' }}> <strong>$ {formatPrice(totals.Expenses)}</strong></span></p></div>
+                                    <div> <p>General<br /><span style={{ fontSize: '1rem' }}> <strong>$ {formatPrice(totals.General)}</strong></span></p></div>
                                 </div>
                             </div>
                         </div>
-                        <div id="buys-container" style={{gridRow:'2', gridColumn:'2/ 4'}}>
-                            <TransactionList transactions={transactions} type="Buys" />
+                        <div id="buys-container" style={{ gridRow: '2', gridColumn: '2/ 4' }}>
+                            <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} />
                         </div>
-                        <div id="incomes-container" style={{gridRow:'2', gridColumn:'4'}}>
-                            <TransactionList transactions={transactions} type="Incomes" />
+                        <div id="incomes-container" style={{ gridRow: '2', gridColumn: '4' }}>
+                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} />
                         </div>
-                        <div id="expenses-container" style={{gridRow:'3', gridColumn:'4'}}>
-                            <TransactionList transactions={transactions} type="Expenses" />
+                        <div id="expenses-container" style={{ gridRow: '3', gridColumn: '4' }}>
+                            <TransactionList transactions={transactions} type="Expenses" setTransactions={setTransactions} />
                         </div>
-                        <div id="debts-container" style={{gridRow:'3', gridColumn:'2/4'}}>
-                            <TransactionList transactions={transactions} type="Debts" />
+                        <div id="debts-container" style={{ gridRow: '3', gridColumn: '2/4' }}>
+                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} />
                         </div>
                     </div>
                 </div>
