@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS "Debts" (
 --     DELETE FROM Expenses WHERE id = OLD.Transactions_id;
 -- END;
 
-DELETE FROM Transactions WHERE id=23;
+--DELETE FROM Transactions WHERE id=23;
 -- CREATE TRIGGER after_delete_incomes AFTER DELETE ON Incomes
 -- FOR EACH ROW
 -- BEGIN
@@ -152,7 +152,7 @@ DELETE FROM Transactions WHERE id=23;
 -- DROP TRIGGER after_insert_transactions_debts;
 -- DROP TRIGGER after_insert_transactions_expenses;
 --INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Computador',3000000.0,'2024-06-12','Alta','Buys','Tech',0,'2024-06-12',1);
--- DELETE FROM Transactions WHERE id=16;
+DELETE FROM Transactions WHERE id=46;
 -- DELETE FROM Expenses WHERE id>0;
 --DELETE FROM Incomes WHERE Transactions_id=5;
 --DELETE FROM Buys WHERE id=2;

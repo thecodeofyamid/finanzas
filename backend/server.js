@@ -2,10 +2,12 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const { WebSocketServer, WebSocket } = require('ws');
+const { verificarClasePromedioVerde } = require('./scrapping');
 const bodyParser = require('body-parser');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const URL_SITIO_WEB = 'https://www.google.com/finance/quote/USD-COP?sa=X&ved=2ahUKEwj66qj7wN6GAxX6cDABHa9lAKQQmY0JegQIBxAw'; // Ajusta la URL
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -98,9 +100,28 @@ const server = app.listen(PORT, () => {
 
 const ws = new WebSocketServer({ server });
 
-ws.on('connection', ws => {
+ws.on('connection', async (ws) => {
     console.log('WebSocket connected');
+
     ws.on('error', error => console.error('WebSocket error:', error));
-    ws.on('message', message => console.log(`Message from Client: ${message}`));
+
+    try {
+        const precioDolar = await verificarClasePromedioVerde(URL_SITIO_WEB);
+        if (precioDolar !== null) {
+            ws.send(JSON.stringify({ action: 'verificar', precioDolar }));
+            console.log(`Sent message to client: ${precioDolar}`);
+        } else {
+            ws.send(JSON.stringify({ action: 'verificar', precioDolar: 'No se encontró el precio del dólar.' }));
+            console.log('No se encontró el precio del dólar.');
+        }
+    } catch (error) {
+        console.error('Error al realizar la solicitud:', error.message);
+        ws.send(JSON.stringify({ action: 'error', error: error.message }));
+    }
+
+    ws.on('message', (message) => {
+        console.log(`Message from Client: ${message}`);
+    });
+
     ws.on('close', () => console.log('WebSocket connection closed'));
 });
