@@ -43,10 +43,23 @@ function Dollar({ enviarDato }) {
     };
   }, []);
 
+  const formatPrice = (price) => {
+    if (price === null) {
+      return 'Cargando...';
+    }
+
+    // Formatear el precio con puntos de mil como comas y punto decimal
+    return parseFloat(price).toLocaleString('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 2,
+    });
+  };
+
   return (
     <div className="dolar" style={{ background: 'white', color: 'black', padding: '5%', borderRadius: '10px' }}>
-      <h5>Precio del Dólar: </h5>
-      <h4>{precioDolar !== null ? `$ ${precioDolar}` : 'Cargando...'}</h4>
+      <h5>Dollar Today</h5>
+      <p style={{ fontSize: '1.5rem', color: 'black' }}><strong>{precioDolar !== null ? formatPrice(precioDolar) : 'Cargando...'}</strong></p>
     </div>
   );
 }
