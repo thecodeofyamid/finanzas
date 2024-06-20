@@ -48,6 +48,60 @@ app.get('/transactions', (req, res) => {
     });
 });
 
+app.put('/edit/:id', (req, res) => {
+    const id = req.params.id;  // Obtener el id de los parámetros
+
+    const { price, description } = req.body;
+
+    // Construir la consulta UPDATE inicial
+    let sql = `UPDATE Transactions SET`;
+    const params = [];
+
+    // Verificar y agregar el precio si está presente en la solicitud
+    if (price !== undefined) {
+        sql += ` price = ?,`;
+        params.push(price);
+    }
+
+    // Verificar y agregar la descripción si está presente en la solicitud
+    if (description !== undefined) {
+        sql += ` description = ?,`;
+        params.push(description);
+    }
+
+    // Eliminar la coma adicional al final de la consulta UPDATE
+    sql = sql.slice(0, -1);
+
+    // Agregar la condición WHERE para el ID
+    sql += ` WHERE id = ?`;
+    params.push(id);
+
+    // Ejecutar la consulta UPDATE con los parámetros apropiados
+    db.run(sql, params, function(err) {
+        if (err) {
+            console.error('Error executing query:', err.message);
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (this.changes === 0) {
+            console.warn('Transaction not found:', id);
+            return res.status(404).json({ error: 'Transaction not found' });
+        }
+
+        // Notificar a los clientes WebSocket
+        ws.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({ action: 'edit', transaction: { id } }));
+            }
+        });
+
+        console.log('Transaction edited:', id);
+        res.json({ message: 'Transaction edited', transaction: { id } });
+    });
+});
+
+
+
 app.post('/add_transactions', (req, res) => {
     const { description, price, date, importance, type, category, ready, deadline, Users_id } = req.body;
     db.run(`INSERT INTO Transactions (description, price, date, importance, type, category, ready, deadline, Users_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,

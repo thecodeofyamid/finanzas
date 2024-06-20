@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Dollar from './assets/components/Dollar';
 
@@ -22,16 +22,15 @@ const getColor = (type) => {
 
 const formatPrice = (priceCOP, exchangeRate) => {
     if (exchangeRate === null) {
-        return ['Cargando...','Cargando...'];
+        return ['Cargando...', 'Cargando...'];
     }
     const priceUSD = priceCOP / exchangeRate;
-    const priceColombia = priceCOP
-    // Formatear el precio a formato con puntos de mil como comas y punto decimal
+    const priceColombia = priceCOP;
     return [
         priceUSD.toLocaleString('es-CO', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 2,
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
         }),
         priceColombia.toLocaleString('es-CO', {
             style: 'currency',
@@ -41,7 +40,7 @@ const formatPrice = (priceCOP, exchangeRate) => {
     ];
 };
 
-const TransactionList = ({ transactions, type, setTransactions, exchangeRate }) => {
+const TransactionList = ({ transactions, type, setTransactions, exchangeRate, onSeeMore }) => {
     const deleteTransaction = async (id) => {
         try {
             const response = await axios.post(`${HTTP_ENDPOINT}/delete_transaction`, { id });
@@ -60,34 +59,30 @@ const TransactionList = ({ transactions, type, setTransactions, exchangeRate }) 
 
     return (
         <div>
-            <div style={{ background: getColor(type)[1], color: '#eee', margin: '4%', borderRadius: '10px'}}><h2>{type}</h2></div>
+            <div style={{ background: getColor(type)[1], color: '#eee', margin: '4%', borderRadius: '10px' }}><h2>{type}</h2></div>
             {transactions.filter(transaction => transaction.type === type).map((transaction, index) => (
-                <div id={transaction.id} key={index} style={{ background: getColor(transaction.type)[0], padding: '2%', margin: '2.5%', border: '5px solid ' + getColor(transaction.type)[1], borderRadius: '5px'}}>
-                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', alignItems:'center', justifyContent:'center'}}>
+                <div id={transaction.id} key={index} style={{ background: getColor(transaction.type)[0], padding: '2%', margin: '2.5%', border: '5px solid ' + getColor(transaction.type)[1], borderRadius: '5px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyContent: 'center' }}>
                         <div>
-                            <p style={{fontSize:'0.9rem'}}>{transaction.description}</p>
+                            <p style={{ fontSize: '0.9rem' }}>{transaction.description}</p>
                         </div>
                         <div>
-                            <h6 style={{ color: 'black', textAlign:'right',paddingRight: '5%' }}>{formatPrice(transaction.price, exchangeRate)[0]}</h6>
-                            <h6 style={{ color: 'black', textAlign:'right',paddingRight: '5%' }}>{formatPrice(transaction.price,exchangeRate)[1]}</h6>
-                            
+                            <h6 style={{ color: 'black', textAlign: 'right', paddingRight: '5%' }}>{formatPrice(transaction.price, exchangeRate)[0]}</h6>
+                            <h6 style={{ color: 'black', textAlign: 'right', paddingRight: '5%' }}>{formatPrice(transaction.price, exchangeRate)[1]}</h6>
                         </div>
                     </div>
-                    <button style={{ background: 'grey' }} onClick={() => deleteTransaction(transaction.id)}>Borrar</button>
+                    <div style={{ display: 'flex', justifyContent: 'left', gap: '3%' }}>
+                        <button style={{ background: 'grey', padding: '1%' }} onClick={() => deleteTransaction(transaction.id)}>Borrar</button>
+                        <button style={{ background: getColor(transaction.type)[1], padding: '1%' }} onClick={() => onSeeMore(transaction)}>Ver más</button>
+                    </div>
                 </div>
             ))}
         </div>
     );
 };
 
-function App() {
+const App = () => {
     const [exchangeRate, setExchangeRate] = useState(null);
-
-    const recibirDato = (datoRecibido) => {
-        console.log(`Dato del dolar: ${datoRecibido}`);
-        setExchangeRate(datoRecibido);
-    };
-
     const [inputData, setInputData] = useState({
         description: '',
         price: '',
@@ -105,9 +100,11 @@ function App() {
         Debts: 0,
         General: 0
     });
+    const [editingTransaction, setEditingTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const isInitialLoad = useRef(true);
     const wsRef = useRef(null);
+    const editRef = useRef(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -136,6 +133,12 @@ function App() {
                         setTransactions((prevTransactions) => getUniqueTransactions([...prevTransactions, data.transaction]));
                     } else if (data.action === 'delete') {
                         setTransactions((prevTransactions) => prevTransactions.filter(transaction => transaction.id !== data.transaction.id));
+                    } else if (data.action === 'edit') {
+                        setTransactions((prevTransactions) =>
+                            prevTransactions.map(transaction =>
+                                transaction.id === data.transaction.id ? data.transaction : transaction
+                            )
+                        );
                     }
                 }
             } catch (error) {
@@ -204,6 +207,72 @@ function App() {
         }
     };
 
+    const handleSubmitEditForm = async (e, id) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const editedData = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await axios.put(`${HTTP_ENDPOINT}/edit/${id}`, editedData);
+            const updatedTransaction = response.data.transaction;
+
+            setTransactions(prevTransactions =>
+                prevTransactions.map(transaction =>
+                    transaction.id === updatedTransaction.id ? updatedTransaction : transaction
+                )
+            );
+
+            exitEdit(); // Cerrar el formulario de edición
+        } catch (error) {
+            console.error('Error editing transaction:', error);
+            alert('Error editing transaction. Please try again.');
+        }
+    };
+
+    const seeMore = (transaction) => {
+        setEditingTransaction(transaction);
+        if (editRef.current) {
+            const transactionHTML = `
+                <div style="background: white; padding:2%; border: 5px solid ${getColor(transaction.type)[1]}; background: ${getColor(transaction.type)[1]}; color: white">
+                    <div><h4>Información del producto</h4></div>
+                    <form id="form-edit" onSubmit="handleSubmitEditForm(event, '${transaction.id}')">
+                        <label style='color:white'>Descripción:</label>
+                        <input type='text' name='description' value='${transaction.description}'>
+                        <label style='color:white'>Precio:</label>
+                        <input type='number' name='price' value='${transaction.price}'>
+                        <input type='submit' style="background: #333;" value="Submit">
+                        <input id='exit-button' type='button' style="background: #333;" value="Exit">
+                    </form>
+                </div>`;
+
+            // Asignar el HTML generado al elemento editRef.current
+            editRef.current.innerHTML = transactionHTML;
+
+            // Mostrar el contenedor
+            editRef.current.style.display = 'flex';
+
+            // Agregar un listener para el botón de salida (exit button)
+            document.getElementById('exit-button').addEventListener('click', exitEdit);
+
+            // Capturar el evento de envío del formulario de edición
+            const formEdit = document.getElementById('form-edit');
+            formEdit.addEventListener('submit', (e) => handleSubmitEditForm(e, transaction.id));
+        }
+    };
+
+    const exitEdit = () => {
+        setEditingTransaction(null);
+        if (editRef.current) {
+            editRef.current.style.display = 'none';
+        }
+    };
+
+    const recibirDato = (datoRecibido) => {
+        console.log(`Dato del dolar: ${datoRecibido}`);
+        setExchangeRate(datoRecibido);
+    };
+
     const calculateTotals = () => {
         const totals = transactions.reduce((acc, transaction) => {
             acc[transaction.type] = (acc[transaction.type] || 0) + parseFloat(transaction.price);
@@ -220,14 +289,16 @@ function App() {
     };
 
     return (
-        <div id="container" style={{ background: '#333', display: 'flex', flexDirection: 'flex', gap: '5%', alignItems: 'start', justifyContent: 'center', padding: '0%' }}>
+        <div id="container" style={{ background: '#333', display: 'flex', flexDirection: 'column', gap: '5%', alignItems: 'center', justifyContent: 'center', padding: '0%' }}>
+            <div ref={editRef} id="hidden-edit" style={{ position: 'absolute', background: 'rgba(0,0,0,0.7)', height: '100%', width: '100%', display: 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            </div>
             <div id="content">
                 <div id="results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '5% 1fr 1fr 5%', gap: '0%', alignItems: 'start', justifyContent: 'center' }} className="results">
-                    <div id="container-2" style={{ gridColumn: '1 / -1', gridRow: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '0.2fr 0fr 1fr', padding: '2%', gap: '2%'}}>
-                        <form id="form-principal" style={{ gridColumn: '1', gridRow: '1/-1'}} onSubmit={handleSubmit}>
+                    <div id="container-2" style={{ gridColumn: '1 / -1', gridRow: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '0.2fr 0fr 1fr', padding: '2%', gap: '2%' }}>
+                        <form id="form-principal" style={{ gridColumn: '1', gridRow: '1/-1' }} onSubmit={handleSubmit}>
                             <h2 style={{ color: '#fff' }}>Transaction</h2>
                             <div id="form-home">
-                            <input type="text" name="description" value={inputData.description} onChange={handleChange} placeholder="Description" />
+                                <input type="text" name="description" value={inputData.description} onChange={handleChange} placeholder="Description" />
                                 <input type="text" name="price" value={inputData.price} onChange={handleChange} placeholder="Price" />
                                 <input type="text" name="date" value={inputData.date} onChange={handleChange} placeholder="Date (YYYY-MM-DD)" />
                                 <input type="text" name="importance" value={inputData.importance} onChange={handleChange} placeholder="Importance (Alta/Media/Baja)" />
@@ -267,23 +338,23 @@ function App() {
                         </div>
                         <Dollar enviarDato={recibirDato}></Dollar>
                         <div id="buys-container" style={{ gridRow: '3', gridColumn: '4' }}>
-                            <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} exchangeRate={exchangeRate} />
+                            <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} />
                         </div>
                         <div id="incomes-container" style={{ gridRow: '1/4', gridColumn: '2/4' }}>
-                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} exchangeRate={exchangeRate} />
+                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} />
                         </div>
                         <div id="expenses-container" style={{ gridRow: '-1', gridColumn: '2/4' }}>
-                            <TransactionList transactions={transactions} type="Expenses" setTransactions={setTransactions} exchangeRate={exchangeRate} />
+                            <TransactionList transactions={transactions} type="Expenses" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} />
                         </div>
                         <div id="debts-container" style={{ gridRow: '4', gridColumn: '4' }}>
-                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} exchangeRate={exchangeRate} />
+                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default App;
 

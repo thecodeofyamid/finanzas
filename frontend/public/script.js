@@ -18,3 +18,4 @@ function toUpperCamelCase(str) {
 }
 
 window.toUpperCamelCase = toUpperCamelCase;
+
