@@ -4,7 +4,7 @@ function Dollar({ enviarDato }) {
   const [precioDolar, setPrecioDolar] = useState(null);
 
   useEffect(() => {
-    const socket = new WebSocket('ws://192.168.18.141:4000');
+    const socket = new WebSocket('ws://192.168.1.20:4000');
 
     socket.addEventListener('open', (event) => {
       console.log('Connected to WebSocket server ✅');

@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios';
 import Dollar from './assets/components/Dollar';
+import TransactionList from './assets/components/TransactionList';
 
-const HTTP_ENDPOINT = 'http://192.168.18.141:4000';
-const WS_ENDPOINT = 'ws://192.168.18.141:4000';
+const HTTP_ENDPOINT = 'http://192.168.1.20:4000';
+const WS_ENDPOINT = 'ws://192.168.1.20:4000';
 
 const getColor = (type) => {
     switch (type) {
@@ -40,46 +41,7 @@ const formatPrice = (priceCOP, exchangeRate) => {
     ];
 };
 
-const TransactionList = ({ transactions, type, setTransactions, exchangeRate, onSeeMore }) => {
-    const deleteTransaction = async (id) => {
-        try {
-            const response = await axios.post(`${HTTP_ENDPOINT}/delete_transaction`, { id });
-            if (response.data.transaction) {
-                const updatedTransactions = transactions.filter(transaction => transaction.id !== id);
-                setTransactions(updatedTransactions);
-                alert('Transaction deleted successfully');
-            } else {
-                alert('Transaction not found');
-            }
-        } catch (error) {
-            console.error('Error deleting transaction:', error);
-            alert('Error deleting transaction. Please try again.');
-        }
-    };
 
-    return (
-        <div>
-            <div style={{ background: getColor(type)[1], color: '#eee', margin: '4%', borderRadius: '10px' }}><h2>{type}</h2></div>
-            {transactions.filter(transaction => transaction.type === type).map((transaction, index) => (
-                <div id={transaction.id} key={index} style={{ background: getColor(transaction.type)[0], padding: '2%', margin: '2.5%', border: '5px solid ' + getColor(transaction.type)[1], borderRadius: '5px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyContent: 'center' }}>
-                        <div>
-                            <p style={{ fontSize: '0.9rem' }}>{transaction.description}</p>
-                        </div>
-                        <div>
-                            <h6 style={{ color: 'black', textAlign: 'right', paddingRight: '5%' }}>{formatPrice(transaction.price, exchangeRate)[0]}</h6>
-                            <h6 style={{ color: 'black', textAlign: 'right', paddingRight: '5%' }}>{formatPrice(transaction.price, exchangeRate)[1]}</h6>
-                        </div>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'left', gap: '3%' }}>
-                        <button style={{ background: 'grey', padding: '1%' }} onClick={() => deleteTransaction(transaction.id)}>Borrar</button>
-                        <button style={{ background: getColor(transaction.type)[1], padding: '1%' }} onClick={() => onSeeMore(transaction)}>Ver más</button>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
 
 const App = () => {
     const [exchangeRate, setExchangeRate] = useState(null);
@@ -222,7 +184,7 @@ const App = () => {
                     transaction.id === updatedTransaction.id ? updatedTransaction : transaction
                 )
             );
-
+            alert("Registro modificado con éxito ")
             exitEdit(); // Cerrar el formulario de edición
         } catch (error) {
             console.error('Error editing transaction:', error);
@@ -234,15 +196,15 @@ const App = () => {
         setEditingTransaction(transaction);
         if (editRef.current) {
             const transactionHTML = `
-                <div style="background: white; padding:2%; border: 5px solid ${getColor(transaction.type)[1]}; background: ${getColor(transaction.type)[1]}; color: white">
+                <div id="edit-box" style="background: white; padding:2%; border: 5px solid ${getColor(transaction.type)[1]}; background: ${getColor(transaction.type)[1]}; color: white">
                     <div><h4>Información del producto</h4></div>
                     <form id="form-edit" onSubmit="handleSubmitEditForm(event, '${transaction.id}')">
                         <label style='color:white'>Descripción:</label>
                         <input type='text' name='description' value='${transaction.description}'>
                         <label style='color:white'>Precio:</label>
                         <input type='number' name='price' value='${transaction.price}'>
-                        <input type='submit' style="background: #333;" value="Submit">
-                        <input id='exit-button' type='button' style="background: #333;" value="Exit">
+                        <input type='submit' style="background: #333; border: none" value="Submit">
+                        <input id='exit-button' type='button' style="background: #333; border: none;" value="Exit">
                     </form>
                 </div>`;
 
@@ -290,7 +252,7 @@ const App = () => {
 
     return (
         <div id="container" style={{ background: '#333', display: 'flex', flexDirection: 'column', gap: '5%', alignItems: 'center', justifyContent: 'center', padding: '0%' }}>
-            <div ref={editRef} id="hidden-edit" style={{ position: 'absolute', background: 'rgba(0,0,0,0.7)', height: '100%', width: '100%', display: 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <div ref={editRef} id="hidden-edit" style={{ position: 'absolute', background: 'rgba(0,0,0,0.8)', height: '100%', width: '100%', display: 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             </div>
             <div id="content">
                 <div id="results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '5% 1fr 1fr 5%', gap: '0%', alignItems: 'start', justifyContent: 'center' }} className="results">
@@ -306,7 +268,7 @@ const App = () => {
                                 <input type="text" name="category" value={inputData.category} onChange={handleChange} placeholder="Category" />
                                 <input type="number" name="ready" value={inputData.ready} onChange={handleChange} placeholder="Ready (true/false)" />
                                 <input type="text" name="deadline" value={inputData.deadline} onChange={handleChange} placeholder="Deadline (YYYY-MM-DD)" />
-                                <div id="button-submit" style={{ width: '100%' }}><button type="submit">Insert Transaction</button></div>
+                                <div id="button-submit" style={{ width: '100%', border:'none' }}><button type="submit">Insert Transaction</button></div>
                             </div>
                         </form>
                         <div id="cash-container" style={{ background: 'white', color: 'black', height: '50vh', textAlign: 'left', padding: '0%', gridRow: '2', gridColumn: '4', display: 'flex', flexDirection: 'column', borderRadius: '10px' }}>
@@ -318,7 +280,7 @@ const App = () => {
                                             <p style={{ fontSize: '1.1rem' }}>Ingresos :</p>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <p><span style={{ fontSize: '1.05rem', color: 'green' }}> <strong>{formatPrice(totals.Incomes, exchangeRate)[0]}</strong></span></p>
+                                            <p><span style={{ fontSize: '1.05rem', color: 'green' }}> <strong>{formatPrice(totals.Incomes, exchangeRate)[1]}</strong></span></p>
                                         </div>
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyContent: 'center', gap: '20%', paddingLeft: '4%', borderBottom: '1px solid black', width: '100%' }}>
@@ -326,28 +288,28 @@ const App = () => {
                                             <p style={{ fontSize: '1.1rem' }}>Egresos :</p>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <p><span style={{ fontSize: '1.05rem', color: 'red' }}> <strong>{formatPrice(totals.Expenses, exchangeRate)[0]}</strong></span></p>
+                                            <p><span style={{ fontSize: '1.05rem', color: 'red' }}> <strong>{formatPrice(totals.Expenses, exchangeRate)[1]}</strong></span></p>
                                         </div>
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyContent: 'center', gap: '20%', width: '100%', paddingLeft: '4%' }}>
                                         <div><p style={{ fontSize: '1.1rem' }}>General :</p></div>
-                                        <div style={{ textAlign: 'right' }}><p><span style={{ fontSize: '1.05rem' }}> <strong>{formatPrice(totals.General, exchangeRate)[0]}</strong></span></p></div>
+                                        <div style={{ textAlign: 'right' }}><p><span style={{ fontSize: '1.05rem' }}> <strong>{formatPrice(totals.General, exchangeRate)[1]}</strong></span></p></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <Dollar enviarDato={recibirDato}></Dollar>
                         <div id="buys-container" style={{ gridRow: '3', gridColumn: '4' }}>
-                            <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} />
+                            <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} />
                         </div>
                         <div id="incomes-container" style={{ gridRow: '1/4', gridColumn: '2/4' }}>
-                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} />
+                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice}/>
                         </div>
                         <div id="expenses-container" style={{ gridRow: '-1', gridColumn: '2/4' }}>
-                            <TransactionList transactions={transactions} type="Expenses" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} />
+                            <TransactionList transactions={transactions} type="Expenses" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice}/>
                         </div>
                         <div id="debts-container" style={{ gridRow: '4', gridColumn: '4' }}>
-                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} />
+                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice}/>
                         </div>
                     </div>
                 </div>
@@ -357,4 +319,3 @@ const App = () => {
 };
 
 export default App;
-

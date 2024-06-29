@@ -1,8 +1,6 @@
 // Inicia la conexión WebSocket
 connectWebSocket();
 
-
-
 function toUpperCamelCase(str) {
     // Divide el texto en palabras usando una expresión regular que considera espacios, guiones y guiones bajos
     const words = str.split(/[\s-_]+/);

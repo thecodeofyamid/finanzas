@@ -165,7 +165,7 @@ ws.on('connection', async (ws) => {
             ws.send(JSON.stringify({ action: 'verificar', precioDolar }));
             console.log(`Sent message to client: ${precioDolar}`);
         } else {
-            ws.send(JSON.stringify({ action: 'verificar', precioDolar: 'No se encontró el precio del dólar.' }));
+            ws.send(JSON.stringify({ action: 'verificar', precioDolar: 0 }));
             console.log('No se encontró el precio del dólar.');
         }
     } catch (error) {

@@ -19,7 +19,7 @@ h2{
   padding: 4%;
 }
 
-#form-principal{background: #2c2c2c; width: 100%; height: 100%;padding: 2%;overflow: hidden; border: 1px solid black; border-radius: 10px;display: flex; flex-direction: column; align-items: center; justify-content: start;}
+#form-principal{background: #2c2c2c; width: 100%; height: 100%;padding: 2%;overflow: hidden; border: 1px solid black; border-radius: 10px;display: flex; flex-direction: column; align-items: center; justify-content: center;}
 
 body::-webkit-scrollbar{
   background-color: rgb(160, 160, 160);
@@ -45,13 +45,13 @@ body::-webkit-scrollbar-thumb{
 input{
   text-align: center;
   height: 50px !important;
-  background: #505050;
-  color: #d9d9d9;
+  background: #fff;
+  color: black;
   font-size: 15px !important;
 }
 
 input::placeholder{
-  color: #b3b3b3;
+  color: #505050;
 }
 #results{
   background: url(https://cdn.pixabay.com/photo/2016/11/27/21/42/stock-1863880_960_720.jpg);
@@ -142,6 +142,22 @@ button{
 }
 .dolar{
   text-align: center;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+input[type="checkbox"]{
+  width: 40px;
+  color: black;
+  background: white;
+}
+input[type="checkbox"]:checked::after {
+  content: 'X';
+  color: black ;
+  font-size: 26px;
+  position: relative;
+  top: 5px;
 }
 @media(width<1200px){
   #form-principal{width: 100% ; height:100vh; overflow: auto;}
@@ -175,6 +191,9 @@ button{
   #cash-container div{
     overflow: hidden;
     height: 100%;
+  }
+  #type{
+    margin-bottom: 15px;
   }
   #form-principal{
     order: 2;
