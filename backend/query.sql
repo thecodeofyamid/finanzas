@@ -159,12 +159,12 @@ CREATE TABLE IF NOT EXISTS "Debts" (
 --SELECT * FROM Buys;
 -- SELECT * FROM Incomes;
 -- SELECT * FROM Expenses;
--- SELECT * FROM Transactions;
+SELECT * FROM Transactions;
 -- SELECT * FROM Buys;
--- SELECT * FROM Debts;
+SELECT * FROM Debts;
 -- SELECT * FROM Cash;
 -- SELECT * FROM Users;
-SELECT * FROM History_changes;
+--SELECT * FROM History_changes;
 --SELECT * FROM Users;
 -- CREATE INDEX IF NOT EXISTS idx_buys_transactions_id ON Buys(Transactions_id);
 -- CREATE INDEX IF NOT EXISTS idx_transactions_id ON Transactions(id);

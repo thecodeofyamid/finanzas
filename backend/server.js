@@ -102,14 +102,37 @@ app.put('/edit/:id', (req, res) => {
 
 app.post('/ready/:type/:id/:state', (req, res) => {
     const type = req.params.type;
-    const id = req.params.id;  // Obtener el id de los parámetros
+    const id = Number(req.params.id);
     const state = req.params.state;
-    
-    console.log(type);
-    console.log(id)
-    console.log(state)
-    console.log("================================")
+
+    const sql1 = `UPDATE Transactions SET ready = ? WHERE id = ?`;
+    const sql2 = `UPDATE ${type} SET ready = ? WHERE Transactions_id = ?`;
+
+    // Ejecutar ambas consultas dentro de una transacción
+    db.serialize(() => {
+        db.run(sql1, [state, id], function (err) {
+            if (err) {
+                console.error('Error al actualizar la transacción:', err);
+                return res.status(500).json({ error: 'Error interno al actualizar la transacción' });
+            }
+
+            console.log(`Estado de ${type} actualizado: ${this.changes}`);
+        });
+
+        db.run(sql2, [state, id], function (err) {
+            if (err) {
+                console.error('Error al actualizar la transacción:', err);
+                return res.status(500).json({ error: 'Error interno al actualizar la transacción' });
+            }
+
+            console.log(`Estado de ${type} actualizado: ${this.changes}`);
+            
+            // Solo enviar una respuesta después de completar ambas actualizaciones
+            res.json({ mensaje: `${type} actualizado correctamente`, cambios: this.changes });
+        });
+    });
 });
+
 
 
 app.post('/add_transactions', (req, res) => {
