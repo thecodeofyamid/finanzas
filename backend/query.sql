@@ -137,7 +137,6 @@ CREATE TABLE IF NOT EXISTS "Debts" (
 -- BEGIN
 --     DELETE FROM Expenses WHERE id = OLD.Transactions_id;
 -- END;
-
 --DELETE FROM Transactions WHERE id=23;
 -- CREATE TRIGGER after_delete_incomes AFTER DELETE ON Incomes
 -- FOR EACH ROW
@@ -152,20 +151,20 @@ CREATE TABLE IF NOT EXISTS "Debts" (
 -- DROP TRIGGER after_insert_transactions_debts;
 -- DROP TRIGGER after_insert_transactions_expenses;
 --INSERT INTO Transactions(description,price,date,importance,type,category,ready,deadline,Users_id) VALUES ('Computador',3000000.0,'2024-06-12','Alta','Buys','Tech',0,'2024-06-12',1);
-DELETE FROM Transactions WHERE id=62;
+-- DELETE FROM Transactions WHERE id=62;
 -- DELETE FROM Expenses WHERE id>0;
 --DELETE FROM Incomes WHERE Transactions_id=5;
 --DELETE FROM Buys WHERE id=2;
 --SELECT * FROM Transactions;
 --SELECT * FROM Buys;
-SELECT * FROM Incomes;
-SELECT * FROM Expenses;
-SELECT * FROM Transactions;
-SELECT * FROM Buys;
-SELECT * FROM Debts;
-SELECT * FROM Cash;
-SELECT * FROM Users;
-
+-- SELECT * FROM Incomes;
+-- SELECT * FROM Expenses;
+-- SELECT * FROM Transactions;
+-- SELECT * FROM Buys;
+-- SELECT * FROM Debts;
+-- SELECT * FROM Cash;
+-- SELECT * FROM Users;
+SELECT * FROM History_changes;
 --SELECT * FROM Users;
 -- CREATE INDEX IF NOT EXISTS idx_buys_transactions_id ON Buys(Transactions_id);
 -- CREATE INDEX IF NOT EXISTS idx_transactions_id ON Transactions(id);

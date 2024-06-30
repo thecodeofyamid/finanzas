@@ -300,16 +300,16 @@ const App = () => {
                         </div>
                         <Dollar enviarDato={recibirDato}></Dollar>
                         <div id="buys-container" style={{ gridRow: '3', gridColumn: '4' }}>
-                            <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} />
+                            <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT} />
                         </div>
                         <div id="incomes-container" style={{ gridRow: '1/4', gridColumn: '2/4' }}>
-                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice}/>
+                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
                         </div>
                         <div id="expenses-container" style={{ gridRow: '-1', gridColumn: '2/4' }}>
-                            <TransactionList transactions={transactions} type="Expenses" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice}/>
+                            <TransactionList transactions={transactions} type="Expenses" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
                         </div>
                         <div id="debts-container" style={{ gridRow: '4', gridColumn: '4' }}>
-                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice}/>
+                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
                         </div>
                     </div>
                 </div>

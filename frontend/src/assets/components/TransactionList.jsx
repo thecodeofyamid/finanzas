@@ -8,7 +8,8 @@ const TransactionList = ({
   exchangeRate,
   onSeeMore,
   getColor,
-  formatPrice
+  formatPrice,
+  HTTP_ENDPOINT
 }) => {
   
   const [checkedItems, setCheckedItems] = useState({});
@@ -23,13 +24,33 @@ const TransactionList = ({
 
        // Lógica que quieres ejecutar cuando el checkbox cambie
         if (type==="Buys" && isChecked) {
+            const state = 1;
             console.log(`Compra #${id} realizada!`);
+            const response = await axios.post(`${HTTP_ENDPOINT}/ready/${type}/${id}/${state}`);
+            if (response.data.transaction){
+               alert(`Compra #${id} realizada!`) 
+            }
         } else if (type==="Debts" && isChecked){
+            const state = 1;
             console.log(`Deuda #${id} saldada!`);
+            const response = await axios.post(`${HTTP_ENDPOINT}/ready/${type}/${id}/${state}`);
+            if (response.data.transaction){
+               alert(`Deuda #${id} saldada con éxito!`) 
+            }
         } else if(type==="Debts" && !isChecked){
+            const state = 0;
             console.log(`El pago de la deuda #${id} se canceló`)
+            const response = await axios.post(`${HTTP_ENDPOINT}/ready/${type}/${id}/${state}`);
+            if (response.data.transaction){
+               alert(`Pago de la deuda #${id} cancelada con éxito!`) 
+            }
         } else{
+            const state = 0;
             console.log(`La compra #${id} se canceló`)
+            const response = await axios.post(`${HTTP_ENDPOINT}/ready/${type}/${id}/${state}`);
+            if (response.data.transaction){
+               alert(`Deuda #${id} saldada con éxito!`) 
+            }
         }
     } catch(error){
         console.log(error)
@@ -92,7 +113,7 @@ const TransactionList = ({
                 <h3 style={{ color: 'blue' }}>Compra</h3>
                 <p>{transaction.description}</p>
                 <h6>{formatPrice(transaction.price, exchangeRate)[0]}</h6>
-                <h6 style={{ color: getColor(transaction.type)[1] }}>Listo: <input  className="checks-buys" type="checkbox" id={`check-${transaction.id}`} onChange={(event)=>{checkBuysOrDebts(event, transaction.id,transaction.type)}}></input></h6>
+                <h6 style={{ color: getColor(transaction.type)[1] }}>Listo: <input  className="checks-buys" type="checkbox" id={`check-${transaction.id}`} name="check_buy" onChange={(event)=>{checkBuysOrDebts(event, transaction.id,transaction.type)}}></input></h6>
               </div>
             )}
             {transaction.type === 'Debts' && (
@@ -100,7 +121,7 @@ const TransactionList = ({
                 <h3 style={{ color: getColor(transaction.type)[1] }}>Deuda</h3>
                 <p>{transaction.description}</p>
                 <h6>{formatPrice(transaction.price, exchangeRate)[0]}</h6>
-                <h6 style={{ color: getColor(transaction.type)[1] }}>Listo: <input className="checks-debts" type="checkbox" id={`check-${transaction.id}`} onChange={(event)=>{checkBuysOrDebts(event, transaction.id,transaction.type)}}></input></h6>
+                <h6 style={{ color: getColor(transaction.type)[1] }}>Listo: <input className="checks-debts" type="checkbox" id={`check-${transaction.id}`} name="check_debt" onChange={(event)=>{checkBuysOrDebts(event, transaction.id,transaction.type)}}></input></h6>
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'left', gap: '3%' }}>

@@ -100,6 +100,16 @@ app.put('/edit/:id', (req, res) => {
     });
 });
 
+app.post('/ready/:type/:id/:state', (req, res) => {
+    const type = req.params.type;
+    const id = req.params.id;  // Obtener el id de los parámetros
+    const state = req.params.state;
+    
+    console.log(type);
+    console.log(id)
+    console.log(state)
+    console.log("================================")
+});
 
 
 app.post('/add_transactions', (req, res) => {
