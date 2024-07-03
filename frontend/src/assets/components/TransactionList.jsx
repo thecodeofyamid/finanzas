@@ -87,41 +87,81 @@ const TransactionList = ({
           >
             {transaction.type === 'Incomes' && (
               <div>
-                <h3 style={{ color: 'green' }}>Ingreso</h3>
-                <p>{transaction.description}</p>
-                <h6>{formatPrice(transaction.price, exchangeRate)[0]}</h6>
+                <div style={{width:'100%',display:'flex', justifyContent:'center'}}><p style={{fontSize:'1rem', fontWeight:'bold'}}>{transaction.description}</p></div>
+                <div style={{display:'flex',justifyContent:'space-between'}}>
+                  <div style={{display:'flex',justifyContent:'space-between'}}>
+                    <div style={{marginRight:'5px', fontWeight:'bold'}}><p>COP: </p></div>
+                    <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[1]}</h6></div>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between'}}>
+                    <div style={{marginRight:'5px',fontWeight:'bold'}}><p>USD:</p></div>
+                    <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[0]}</h6></div>
+                  </div>
+                </div>
               </div>
             )}
             {transaction.type === 'Expenses' && (
               <div>
-                <h3 style={{ color: 'red' }}>Gasto</h3>
-                <p>{transaction.description}</p>
-                <h6>{formatPrice(transaction.price, exchangeRate)[0]}</h6>
-              </div>
-            )}
-            {transaction.type === 'Buys' && (
-              <div>
-                <h3 style={{ color: 'blue' }}>Compra</h3>
-                <p>{transaction.description}</p>
-                <h6>{formatPrice(transaction.price, exchangeRate)[0]}</h6>
-                <h6 style={{ color: getColor(transaction.type)[1] }}>
-                  Listo: <input className="checks-buys" type="checkbox" id={`check-${transaction.id}`} name="check_buy"
-                                onChange={(event) => { checkBuysOrDebts(event, transaction.id, transaction.type) }}
-                                checked={checkedItems[transaction.id] || false}></input>
-                </h6>
+                <div style={{width:'100%',display:'flex', justifyContent:'center'}}><p style={{fontSize:'1rem', fontWeight:'bold'}}>{transaction.description}</p></div>
+                <div style={{display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+                  <div style={{display:'flex',justifyContent:'space-between'}}>
+                    <div style={{marginRight:'5px', fontWeight:'bold'}}><p>COP: </p></div>
+                    <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[1]}</h6></div>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'space-between'}}>
+                    <div style={{marginRight:'5px',fontWeight:'bold'}}><p>USD:</p></div>
+                    <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[0]}</h6></div>
+                  </div>
+                  <div>
+                    <p>{transaction.date}
+                    </p>                  
+                  </div>
+                </div>
               </div>
             )}
             {transaction.type === 'Debts' && (
               <div>
-                <h3 style={{ color: getColor(transaction.type)[1] }}>Deuda</h3>
-                <p>{transaction.description}</p>
-                <h6>{formatPrice(transaction.price, exchangeRate)[0]}</h6>
-                <h6 style={{ color: getColor(transaction.type)[1] }}>
+              <div style={{width:'100%',display:'flex', justifyContent:'center'}}><p style={{fontSize:'1rem', fontWeight:'bold'}}>{transaction.description}</p></div>
+              <div style={{display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+                <div style={{display:'flex',justifyContent:'space-between'}}>
+                  <div style={{marginRight:'5px', fontWeight:'bold'}}><p>COP: </p></div>
+                  <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[1]}</h6></div>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between'}}>
+                  <div style={{marginRight:'5px',fontWeight:'bold'}}><p>USD:</p></div>
+                  <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[0]}</h6></div>
+                </div>
+                <div>
+                  <h6 style={{ color: getColor(transaction.type)[1] }}>
                   Listo: <input className="checks-debts" type="checkbox" id={`check-${transaction.id}`} name="check_debt"
                                 onChange={(event) => { checkBuysOrDebts(event, transaction.id, transaction.type) }}
                                 checked={checkedItems[transaction.id] || false}></input>
-                </h6>
+                  </h6>
+                </div>
               </div>
+            </div>
+            )}
+            {transaction.type === 'Buys' && (
+              <div>
+              <div style={{width:'100%',display:'flex', justifyContent:'center'}}><p style={{fontSize:'1rem', fontWeight:'bold'}}>{transaction.description}</p></div>
+              <div style={{display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+                <div style={{display:'flex',justifyContent:'space-between'}}>
+                  <div style={{marginRight:'5px', fontWeight:'bold'}}><p>COP: </p></div>
+                  <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[1]}</h6></div>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between'}}>
+                  <div style={{marginRight:'5px',fontWeight:'bold'}}><p>USD:</p></div>
+                  <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[0]}</h6></div>
+                </div>
+                <div>
+                  <h6 style={{ color: getColor(transaction.type)[1] }}>
+                  Listo: <input className="checks-debts" type="checkbox" id={`check-${transaction.id}`} name="check_debt"
+                                onChange={(event) => { checkBuysOrDebts(event, transaction.id, transaction.type) }}
+                                checked={checkedItems[transaction.id] || false}></input>
+                  </h6>
+                </div>
+              </div>
+            </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'left', gap: '3%' }}>
               <button style={{ background: 'grey', border: 'none', padding: '1%' }}

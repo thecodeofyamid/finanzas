@@ -11,6 +11,7 @@
 body,#root{
   width: 100%;
   height: 100vh;
+  font-size: 1rem;
 }
 
 h2{
@@ -18,8 +19,22 @@ h2{
   text-align: center;
   padding: 4%;
 }
-
-#form-principal{background: #2c2c2c; width: 100%; height: 100%;padding: 2%;overflow: hidden; border: 1px solid black; border-radius: 10px;display: flex; flex-direction: column; align-items: center; justify-content: center;}
+#menu ul{
+  width: 100%;
+}
+#menu ul li{
+  list-style: none;
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid grey;
+  padding: 2%;
+}
+#menu ul li:hover{
+  background: white;
+  color: black;
+  cursor: pointer;
+}
+#form-principal{background: #202020; width: 100%; height: 100%;padding: 2%;overflow: hidden; border: 1px solid black; border-radius: 10px;display: flex; flex-direction: column; align-items: center; justify-content: center;}
 
 body::-webkit-scrollbar{
   background-color: rgb(160, 160, 160);
@@ -60,7 +75,7 @@ input::placeholder{
   background-size: cover;
   background-attachment: fixed;
   width: 100%;
-  padding: 2%;
+  padding: 0%;
   color: #c4c4c4;
   max-height: 100vh;
   overflow: auto;
@@ -156,7 +171,7 @@ input[type="checkbox"]:checked::after {
   content: 'X';
   color: black ;
   font-size: 26px;
-  position: relative;
+  position: 'fixed';
   top: 5px;
 }
 @media(width<1200px){

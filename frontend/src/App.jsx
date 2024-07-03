@@ -2,6 +2,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios';
 import Dollar from './assets/components/Dollar';
 import TransactionList from './assets/components/TransactionList';
+import { Cash } from './assets/components/Cash';
+import { FormPrincipal } from './assets/components/FormPrincipal';
+import closeCash from './helpers/closeCash';
+import openCash from './helpers/openCash';
+import closeForm from './helpers/closeForm';
+import openForm from './helpers/openForm';
+import Menu from './assets/components/Menu';
 
 const HTTP_ENDPOINT = 'http://192.168.18.141:4000';
 const WS_ENDPOINT = 'ws://192.168.18.141:4000';
@@ -257,59 +264,21 @@ const App = () => {
             <div id="content">
                 <div id="results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '5% 1fr 1fr 5%', gap: '0%', alignItems: 'start', justifyContent: 'center' }} className="results">
                     <div id="container-2" style={{ gridColumn: '1 / -1', gridRow: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '0.2fr 0fr 1fr', padding: '2%', gap: '2%' }}>
-                        <form id="form-principal" style={{ gridColumn: '1', gridRow: '1/-1' }} onSubmit={handleSubmit}>
-                            <h2 style={{ color: '#fff' }}>Transaction</h2>
-                            <div id="form-home">
-                                <input type="text" name="description" value={inputData.description} onChange={handleChange} placeholder="Description" />
-                                <input type="text" name="price" value={inputData.price} onChange={handleChange} placeholder="Price" />
-                                <input type="text" name="date" value={inputData.date} onChange={handleChange} placeholder="Date (YYYY-MM-DD)" />
-                                <input type="text" name="importance" value={inputData.importance} onChange={handleChange} placeholder="Importance (Alta/Media/Baja)" />
-                                <input type="text" name="type" value={inputData.type} onChange={handleChange} placeholder="Type" />
-                                <input type="text" name="category" value={inputData.category} onChange={handleChange} placeholder="Category" />
-                                <input type="number" name="ready" value={inputData.ready} onChange={handleChange} placeholder="Ready (true/false)" />
-                                <input type="text" name="deadline" value={inputData.deadline} onChange={handleChange} placeholder="Deadline (YYYY-MM-DD)" />
-                                <div id="button-submit" style={{ width: '100%', border:'none' }}><button type="submit">Insert Transaction</button></div>
-                            </div>
-                        </form>
-                        <div id="cash-container" style={{ background: 'white', color: 'black', height: '50vh', textAlign: 'left', padding: '0%', gridRow: '2', gridColumn: '4', display: 'flex', flexDirection: 'column', borderRadius: '10px' }}>
-                            <div><h2>Cash</h2></div>
-                            <div style={{ display: 'grid', width: 'auto', height: '100%', gridTemplateColumns: '1fr', justifyContent: 'start', alignItems: 'start', gap: '2%', overflow: 'auto', padding: '4%' }}>
-                                <div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyContent: 'center', gap: '20%', borderBottom: '1px solid black', width: '100%', paddingLeft: '4%' }}>
-                                        <div>
-                                            <p style={{ fontSize: '1.1rem' }}>Ingresos :</p>
-                                        </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <p><span style={{ fontSize: '1.05rem', color: 'green' }}> <strong>{formatPrice(totals.Incomes, exchangeRate)[1]}</strong></span></p>
-                                        </div>
-                                    </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyContent: 'center', gap: '20%', paddingLeft: '4%', borderBottom: '1px solid black', width: '100%' }}>
-                                        <div>
-                                            <p style={{ fontSize: '1.1rem' }}>Egresos :</p>
-                                        </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <p><span style={{ fontSize: '1.05rem', color: 'red' }}> <strong>{formatPrice(totals.Expenses, exchangeRate)[1]}</strong></span></p>
-                                        </div>
-                                    </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', justifyContent: 'center', gap: '20%', width: '100%', paddingLeft: '4%' }}>
-                                        <div><p style={{ fontSize: '1.1rem' }}>General :</p></div>
-                                        <div style={{ textAlign: 'right' }}><p><span style={{ fontSize: '1.05rem' }}> <strong>{formatPrice(totals.General, exchangeRate)[1]}</strong></span></p></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <Dollar enviarDato={recibirDato}></Dollar>
-                        <div id="buys-container" style={{ gridRow: '3', gridColumn: '4' }}>
+                        <FormPrincipal handleSubmit={handleSubmit} inputData={inputData} handleChange={handleChange} closeForm={closeForm}></FormPrincipal>
+                        <Cash formatPrice={formatPrice} totals={totals} exchangeRate={exchangeRate} closeCash={closeCash}></Cash>
+                        <Menu openForm={openForm} openCash={openCash}></Menu>
+                        <div style={{gridRow:'2',gridColumn:'1', height:'100vh',display:'none'}}><Dollar enviarDato={recibirDato}></Dollar></div>
+                        <div id="buys-container" style={{ gridRow: '1/4', gridColumn: '1/4'}}>
                             <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT} />
                         </div>
-                        <div id="incomes-container" style={{ gridRow: '1/4', gridColumn: '2/4' }}>
-                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
+                        <div id="debts-container" style={{ gridRow: '1/4', gridColumn: '1/4' }}>
+                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
                         </div>
-                        <div id="expenses-container" style={{ gridRow: '-1', gridColumn: '2/4' }}>
+                        <div id="expenses-container" style={{ gridRow: '1/4', gridColumn: '1/4' }}>
                             <TransactionList transactions={transactions} type="Expenses" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
                         </div>
-                        <div id="debts-container" style={{ gridRow: '4', gridColumn: '4' }}>
-                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
+                        <div id="incomes-container" style={{ gridRow: '1/4', gridColumn: '1/4'}}>
+                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
                         </div>
                     </div>
                 </div>
