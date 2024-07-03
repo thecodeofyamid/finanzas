@@ -1,37 +1,47 @@
-import React, { useState } from 'react';
-import useWebSocket from '../../hooks/useWebSocket';
+import React, { useState, useEffect } from 'react';
 
-const Dollar = ({ enviarDato }) => {
+function Dollar({ enviarDato }) {
   const [precioDolar, setPrecioDolar] = useState(null);
 
-  const onMessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.action === 'verificar') {
-        const dolar = data.precioDolar;
-        console.log(`Precio del dólar recibido: ${dolar}`);
-        setPrecioDolar(dolar);
-        enviarDato(dolar);
-      } else if (data.action === 'error') {
-        console.error(`Error: ${data.error}`);
+  useEffect(() => {
+    const socket = new WebSocket('ws://192.168.18.141:4000');
+
+    socket.addEventListener('open', (event) => {
+      console.log('Connected to WebSocket server ✅');
+      socket.send('Hello Server! 👨‍💻');
+    });
+
+    socket.addEventListener('message', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.action === 'verificar') {
+          const dolar = data.precioDolar;
+          console.log(`Precio del dólar recibido: ${dolar}`);
+          setPrecioDolar(dolar);
+          enviarDato(dolar);
+        } else if (data.action === 'error') {
+          console.error(`Error: ${data.error}`);
+        }
+      } catch (error) {
+        console.error('Error parsing JSON data:', error);
       }
-    } catch (error) {
-      console.error('Error parsing JSON data:', error);
-    }
-  };
+    });
 
-  const onClose = (event) => {
-    console.log('Disconnected from WebSocket server. Attempting to reconnect...');
-    setTimeout(() => {
-      // Reconnect logic if needed
-    }, 5000);
-  };
+    socket.addEventListener('close', (event) => {
+      console.log('Disconnected from WebSocket server. Attempting to reconnect...');
+      setTimeout(() => {
+        socket.close();
+      }, 5000);
+    });
 
-  const onError = (event) => {
-    console.error('WebSocket error observed:', event);
-  };
+    socket.addEventListener('error', (event) => {
+      console.error('WebSocket error observed:', event);
+    });
 
-  useWebSocket('ws://192.168.18.141:4000', onMessage, onClose, onError);
+    return () => {
+      socket.close();
+    };
+  }, []);
 
   const formatPrice = (price) => {
     if (price === null) {
@@ -52,6 +62,6 @@ const Dollar = ({ enviarDato }) => {
       <p style={{ fontSize: '1.5rem', color: 'black' }}><strong>{precioDolar !== null ? formatPrice(precioDolar) : 'Cargando...'}</strong></p>
     </div>
   );
-};
+}
 
 export default Dollar;

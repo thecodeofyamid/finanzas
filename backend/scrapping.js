@@ -1,23 +1,10 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
-const fs = require('fs/promises'); // Importar fs con soporte async/await
-
-const FILE_PATH = './dolar.json'; // Ruta donde se guardará el archivo JSON
 
 function convertirANumero(texto) {
     // Remover las comas del texto y convertir a número flotante
     const numero = parseFloat(texto.replace(/,/g, ''));
     return numero;
-}
-
-async function guardarPrecioEnJSON(precio) {
-    try {
-        const data = JSON.stringify({ precio });
-        await fs.writeFile(FILE_PATH, data);
-        console.log(`Precio del dólar (${precio}) guardado en ${FILE_PATH}`);
-    } catch (error) {
-        console.error('Error al guardar el precio en JSON:', error);
-    }
 }
 
 async function verificarClasePromedioVerde(url) {
@@ -42,15 +29,7 @@ async function verificarClasePromedioVerde(url) {
                     const precio = convertirANumero($(elemento).text().trim());
                     precios.push(precio);
                 });
-
-                if (precios.length > 0) {
-                    const precio = precios[0];
-                    await guardarPrecioEnJSON(precio); // Guardar el precio en el archivo JSON
-                    return precio; // Retornar el primer precio encontrado
-                } else {
-                    console.log('No se encontraron precios válidos.');
-                    return null;
-                }
+                return precios.length ? precios[0] : null; // Retornar el primer precio encontrado
             } else {
                 console.log("La clase 'YMlKec fxKbKc' no se encontró en la página.");
                 return null;

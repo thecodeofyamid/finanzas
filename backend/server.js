@@ -4,7 +4,6 @@ const cors = require('cors');
 const { WebSocketServer, WebSocket } = require('ws');
 const { verificarClasePromedioVerde } = require('./scrapping');
 const bodyParser = require('body-parser');
-const fs = require('fs'); // Módulo para trabajar con archivos
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -14,20 +13,6 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const db = new sqlite3.Database('./mydatabase.sqlite');
-
-// Inicializa la variable global para almacenar el último valor del dólar
-let lastDollarValue = 0;
-
-// Intenta leer el último valor del dólar desde el archivo JSON al inicio
-try {
-    const data = fs.readFileSync('lastDollarValue.json');
-    const storedData = JSON.parse(data);
-    lastDollarValue = storedData.lastDollarValue;
-    console.log(`Last dollar value restored from file: ${lastDollarValue}`);
-} catch (error) {
-    console.error('Error reading last dollar value from file:', error.message);
-    // Puedes manejar aquí el caso cuando no se pueda leer el archivo
-}
 
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS Transactions (
@@ -53,11 +38,6 @@ db.serialize(() => {
     
     // Similar para Expenses, Buys, Debts
 });
-
-app.get('/dollar-price', (req, res) => {
-    res.json({ lastDollarValue });
-});
-
 
 app.get('/transactions', (req, res) => {
     db.all("SELECT * FROM Transactions", (err, rows) => {
@@ -153,6 +133,8 @@ app.post('/ready/:type/:id/:state', (req, res) => {
     });
 });
 
+
+
 app.post('/add_transactions', (req, res) => {
     const { description, price, date, importance, type, category, ready, deadline, Users_id } = req.body;
     db.run(`INSERT INTO Transactions (description, price, date, importance, type, category, ready, deadline, Users_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -213,11 +195,6 @@ ws.on('connection', async (ws) => {
     try {
         const precioDolar = await verificarClasePromedioVerde(URL_SITIO_WEB);
         if (precioDolar !== null) {
-            lastDollarValue = precioDolar; // Actualiza el último valor del dólar
-
-            // Guardar en un archivo JSON
-            fs.writeFileSync('lastDollarValue.json', JSON.stringify({ lastDollarValue }));
-
             ws.send(JSON.stringify({ action: 'verificar', precioDolar }));
             console.log(`Sent message to client: ${precioDolar}`);
         } else {
