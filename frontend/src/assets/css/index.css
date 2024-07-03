@@ -14,10 +14,10 @@ body,#root{
   font-size: 1rem;
 }
 
-h2{
+h2,h3{
   width: 100%;
   text-align: center;
-  padding: 4%;
+  padding: 2%;
 }
 #menu ul{
   width: 100%;
@@ -26,7 +26,6 @@ h2{
   list-style: none;
   width: 100%;
   text-align: left;
-  border-bottom: 1px solid grey;
   padding: 2%;
 }
 #menu ul li:hover{

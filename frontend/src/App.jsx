@@ -259,14 +259,14 @@ const App = () => {
 
     return (
         <div id="container" style={{ background: '#333', display: 'flex', flexDirection: 'column', gap: '5%', alignItems: 'center', justifyContent: 'center', padding: '0%' }}>
-            <div ref={editRef} id="hidden-edit" style={{ position: 'absolute', background: 'rgba(0,0,0,0.8)', height: '100%', width: '100%', display: 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <div ref={editRef} id="hidden-edit" style={{ position: 'absolute', background: 'rgba(0,0,0,0.8)', height: '100%', width: '75%',left:'0', display: 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             </div>
             <div id="content">
                 <div id="results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '5% 1fr 1fr 5%', gap: '0%', alignItems: 'start', justifyContent: 'center' }} className="results">
-                    <div id="container-2" style={{ gridColumn: '1 / -1', gridRow: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '0.2fr 0fr 1fr', padding: '2%', gap: '2%' }}>
+                    <div id="container-2" style={{ gridColumn: '1 / -1', gridRow: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '0.2fr 0fr 1fr', padding: '1%', margin:'1% 10% 4% 5%',gap: '4%' }}>
                         <FormPrincipal handleSubmit={handleSubmit} inputData={inputData} handleChange={handleChange} closeForm={closeForm}></FormPrincipal>
                         <Cash formatPrice={formatPrice} totals={totals} exchangeRate={exchangeRate} closeCash={closeCash}></Cash>
-                        <Menu openForm={openForm} openCash={openCash}></Menu>
+                        <Menu openForm={openForm} openCash={openCash} getColor={getColor}></Menu>
                         <div style={{gridRow:'2',gridColumn:'1', height:'100vh',display:'none'}}><Dollar enviarDato={recibirDato}></Dollar></div>
                         <div id="buys-container" style={{ gridRow: '1/4', gridColumn: '1/4'}}>
                             <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT} />

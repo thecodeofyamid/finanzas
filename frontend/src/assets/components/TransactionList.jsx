@@ -68,8 +68,8 @@ const TransactionList = ({
 
   return (
     <div>
-      <div style={{ background: getColor(type)[1], color: '#eee', margin: '4%', borderRadius: '10px' }}>
-        <h2>{type}</h2>
+      <div style={{ background: getColor(type)[1], color: '#eee', margin: '0%', borderRadius: '10px' }}>
+        <h3>{type}</h3>
       </div>
       {transactions
         .filter(transaction => transaction.type === type)

@@ -1,4 +1,8 @@
-const Menu = ({ openForm, openCash }) => {
+import React, { useState } from 'react';
+
+const Menu = ({ openForm, openCash, getColor }) => {
+    const [selectedType, setSelectedType] = useState(null);
+
     const handleTransactionType = (type) => {
         const transactionTypes = ['incomes', 'expenses', 'buys', 'debts'];
 
@@ -13,17 +17,26 @@ const Menu = ({ openForm, openCash }) => {
         if (selectedTransaction) {
             selectedTransaction.style.display = 'grid';
         }
+        function capitalizeFirstLetter(string){
+            const [first, ...rest] = string;
+            return first.toUpperCase() + rest.join('');
+        }
+        type = capitalizeFirstLetter(type);
+        console.log(type);
+        setSelectedType(type);
     };
 
     return (
-        <div id="menu" style={{ background: '#232323', display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', height: '100vh', position: 'absolute', width: '22%', right: '0', top: '0' }}>
+        <div id="menu" style={{ background: selectedType ? getColor(selectedType)[1] : '#232323', display: 'flex', flexDirection: 'column', justifyContent: 'start', alignItems: 'center', height: '100vh', position: 'absolute', width: '25%', right: '0', top: '0' }}>
             <div id="bg-dark" style={{ background: 'rgba(0,0,0,.8)', position: 'absolute', width: '70vw', height: '100vh', display: 'none', right: '0' }}></div>
             <div style={{ width: '100%', textAlign: 'center', padding: '5%' }}><h6>Menú</h6></div>
-            <img style={{ width: '60px', height: '60px', margin: '10%' }} src="money.png" alt="money" />
+            <a href="/"><img style={{ width: '60px', height: '60px', margin: '10%',cursor:'pointer'}} src="dollar.png" alt="money" /></a>
             <div style={{ width: '100%' }}>
                 <ul style={{ color: 'white' }}>
+                    <br></br>
                     <li onClick={() => openForm('Nueva transacción')}>Nueva transacción</li>
                     <li onClick={() => openCash('Caja')}>Caja</li>
+                    <br></br>
                     <li onClick={() => handleTransactionType('incomes')}>Ingresos</li>
                     <li onClick={() => handleTransactionType('expenses')}>Egresos</li>
                     <li onClick={() => handleTransactionType('buys')}>Compras</li>
