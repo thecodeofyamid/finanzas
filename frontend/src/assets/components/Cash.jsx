@@ -1,6 +1,6 @@
 export const Cash =  ({formatPrice,totals,exchangeRate,closeCash})=>{
     return(
-        <div id="cash-container" style={{position:'absolute',left:'0', background: '#191919', color: 'white', height: '100vh',width:'30vw',top:'0', textAlign: 'left', padding: '0%', gridRow: '2', gridColumn: '4', display: 'none', flexDirection: 'column', borderRadius: '10px' }}>
+        <div id="cash-container" style={{position:'absolute',left:'0', background: '#242424', color: 'white', height: '100vh',width:'30vw',top:'0', textAlign: 'left', padding: '0%', gridRow: '2', gridColumn: '4', display: 'none', flexDirection: 'column'}}>
             <button style={{border:'none', padding:'5%'}} onClick={closeCash}>Cerrar</button>
             <div><h2>Cash</h2></div>
             <div style={{ display: 'grid', width: 'auto', height: '100%', gridTemplateColumns: '1fr', justifyContent: 'start', alignItems: 'start', gap: '2%', overflow: 'auto', padding: '4%' }}>

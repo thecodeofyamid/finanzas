@@ -68,7 +68,7 @@ const TransactionList = ({
 
   return (
     <div>
-      <div style={{ background: getColor(type)[1], color: '#eee', margin: '0%', borderRadius: '10px' }}>
+      <div style={{ background: getColor(type)[1], color: '#eee', margin: '2%', borderRadius: '10px' }}>
         <h3>{type}</h3>
       </div>
       {transactions
@@ -103,7 +103,7 @@ const TransactionList = ({
             {transaction.type === 'Expenses' && (
               <div>
                 <div style={{width:'100%',display:'flex', justifyContent:'center'}}><p style={{fontSize:'1rem', fontWeight:'bold'}}>{transaction.description}</p></div>
-                <div style={{display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+                <div style={{display:'flex',justifyContent:'space-between'}}>
                   <div style={{display:'flex',justifyContent:'space-between'}}>
                     <div style={{marginRight:'5px', fontWeight:'bold'}}><p>COP: </p></div>
                     <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[1]}</h6></div>
@@ -112,17 +112,13 @@ const TransactionList = ({
                     <div style={{marginRight:'5px',fontWeight:'bold'}}><p>USD:</p></div>
                     <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[0]}</h6></div>
                   </div>
-                  <div>
-                    <p>{transaction.date}
-                    </p>                  
-                  </div>
                 </div>
               </div>
             )}
             {transaction.type === 'Debts' && (
               <div>
               <div style={{width:'100%',display:'flex', justifyContent:'center'}}><p style={{fontSize:'1rem', fontWeight:'bold'}}>{transaction.description}</p></div>
-              <div style={{display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+              <div style={{display:'flex',justifyContent:'space-between'}}>
                 <div style={{display:'flex',justifyContent:'space-between'}}>
                   <div style={{marginRight:'5px', fontWeight:'bold'}}><p>COP: </p></div>
                   <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[1]}</h6></div>
@@ -144,7 +140,7 @@ const TransactionList = ({
             {transaction.type === 'Buys' && (
               <div>
               <div style={{width:'100%',display:'flex', justifyContent:'center'}}><p style={{fontSize:'1rem', fontWeight:'bold'}}>{transaction.description}</p></div>
-              <div style={{display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+              <div style={{display:'flex',justifyContent:'space-between'}}>
                 <div style={{display:'flex',justifyContent:'space-between'}}>
                   <div style={{marginRight:'5px', fontWeight:'bold'}}><p>COP: </p></div>
                   <div><h6 style={{color:`${getColor(transaction.type)[1]}`,fontWeight:'bold'}}>{formatPrice(transaction.price, exchangeRate)[1]}</h6></div>

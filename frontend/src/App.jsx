@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import Dollar from './assets/components/Dollar';
 import TransactionList from './assets/components/TransactionList';
@@ -9,130 +9,34 @@ import openCash from './helpers/openCash';
 import closeForm from './helpers/closeForm';
 import openForm from './helpers/openForm';
 import Menu from './assets/components/Menu';
+import { getColor } from './utils/getColor';
+import { HTTP_ENDPOINT, WS_ENDPOINT } from './config/endpoints';
+import { formatPrice } from './utils/formatPrice';
+import { initialInputData, initialTotals } from './config/initialState';
+import useWebSocket from './hooks/useWebSocket';
+import enviarDato from './helpers/sendData';
+import useTransactionsWebSocket from './hooks/useTransactionsWebSocket';
+import getUniqueTransactions from './helpers/getUniqueTransaction';
+import useCalculateTotals from './hooks/useCalculateTotals';
+import seeMore from './utils/seeMore';
 
-const HTTP_ENDPOINT = 'http://192.168.18.141:4000';
-const WS_ENDPOINT = 'ws://192.168.18.141:4000';
-
-const getColor = (type) => {
-    switch (type) {
-        case 'Buys':
-            return ['#eeeeee', 'blue'];
-        case 'Incomes':
-            return ['#eeeeee', 'green'];
-        case 'Expenses':
-            return ['#eeeeee', 'red'];
-        case 'Debts':
-            return ['#eeeeee', 'orange'];
-        default:
-            return ['black', 'black'];
-    }
-};
-
-const formatPrice = (priceCOP, exchangeRate) => {
-    if (exchangeRate === null) {
-        return ['Cargando...', 'Cargando...'];
-    }
-    const priceUSD = priceCOP / exchangeRate;
-    const priceColombia = priceCOP;
-    return [
-        priceUSD.toLocaleString('es-CO', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2,
-        }),
-        priceColombia.toLocaleString('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 2,
-        })
-    ];
-};
-
-
-
-const App = () => {
+export const App = () => {
     const [exchangeRate, setExchangeRate] = useState(null);
-    const [inputData, setInputData] = useState({
-        description: '',
-        price: '',
-        date: '',
-        importance: '',
-        type: '',
-        category: '',
-        ready: '',
-        deadline: ''
-    });
-    const [totals, setTotals] = useState({
-        Buys: 0,
-        Incomes: 0,
-        Expenses: 0,
-        Debts: 0,
-        General: 0
-    });
+    const [inputData, setInputData] = useState(initialInputData);
+    const [totals, setTotals] = useState(initialTotals);
     const [editingTransaction, setEditingTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
+    const [precioDolar, setPrecioDolar] = useState(null);
+
     const isInitialLoad = useRef(true);
     const wsRef = useRef(null);
     const editRef = useRef(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(`${HTTP_ENDPOINT}/transactions`);
-                const uniqueTransactions = getUniqueTransactions(response.data);
-                setTransactions(uniqueTransactions);
-                isInitialLoad.current = false;
-            } catch (error) {
-                console.error('Error fetching transactions', error);
-            }
-        };
-        fetchData();
+    useWebSocket(WS_ENDPOINT, setPrecioDolar, enviarDato);
 
-        wsRef.current = new WebSocket(WS_ENDPOINT);
+    useTransactionsWebSocket(setTransactions, isInitialLoad, wsRef, getUniqueTransactions);
 
-        wsRef.current.onopen = () => {
-            console.log('WebSocket connected');
-        };
-
-        wsRef.current.onmessage = (message) => {
-            try {
-                const data = JSON.parse(message.data);
-                if (!isInitialLoad.current) {
-                    if (data.action === 'add') {
-                        setTransactions((prevTransactions) => getUniqueTransactions([...prevTransactions, data.transaction]));
-                    } else if (data.action === 'delete') {
-                        setTransactions((prevTransactions) => prevTransactions.filter(transaction => transaction.id !== data.transaction.id));
-                    } else if (data.action === 'edit') {
-                        setTransactions((prevTransactions) =>
-                            prevTransactions.map(transaction =>
-                                transaction.id === data.transaction.id ? data.transaction : transaction
-                            )
-                        );
-                    }
-                }
-            } catch (error) {
-                console.error('Error parsing JSON data:', error);
-            }
-        };
-
-        return () => {
-            if (wsRef.current) {
-                wsRef.current.close();
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        calculateTotals();
-    }, [transactions]);
-
-    const getUniqueTransactions = (transactionsArray) => {
-        const seen = new Set();
-        return transactionsArray.filter(transaction => {
-            const transactionString = JSON.stringify(transaction);
-            return seen.has(transactionString) ? false : seen.add(transactionString);
-        });
-    };
+    useCalculateTotals(transactions, setTotals);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -141,12 +45,12 @@ const App = () => {
             const formattedPrice = value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
             setInputData((prevInputData) => ({
                 ...prevInputData,
-                [name]: formattedPrice
+                [name]: formattedPrice,
             }));
         } else {
             setInputData((prevInputData) => ({
                 ...prevInputData,
-                [name]: value
+                [name]: value,
             }));
         }
     };
@@ -168,7 +72,7 @@ const App = () => {
                 type: '',
                 category: '',
                 ready: '',
-                deadline: ''
+                deadline: '',
             });
         } catch (error) {
             console.error('Error inserting transaction', error);
@@ -186,12 +90,12 @@ const App = () => {
             const response = await axios.put(`${HTTP_ENDPOINT}/edit/${id}`, editedData);
             const updatedTransaction = response.data.transaction;
 
-            setTransactions(prevTransactions =>
-                prevTransactions.map(transaction =>
+            setTransactions((prevTransactions) =>
+                prevTransactions.map((transaction) =>
                     transaction.id === updatedTransaction.id ? updatedTransaction : transaction
                 )
             );
-            alert("Registro modificado con éxito ")
+            alert('Registro modificado con éxito ');
             exitEdit(); // Cerrar el formulario de edición
         } catch (error) {
             console.error('Error editing transaction:', error);
@@ -199,35 +103,9 @@ const App = () => {
         }
     };
 
-    const seeMore = (transaction) => {
-        setEditingTransaction(transaction);
-        if (editRef.current) {
-            const transactionHTML = `
-                <div id="edit-box" style="background: white; padding:2%; border: 5px solid ${getColor(transaction.type)[1]}; background: ${getColor(transaction.type)[1]}; color: white">
-                    <div><h4>Información del producto</h4></div>
-                    <form id="form-edit" onSubmit="handleSubmitEditForm(event, '${transaction.id}')">
-                        <label style='color:white'>Descripción:</label>
-                        <input type='text' name='description' value='${transaction.description}'>
-                        <label style='color:white'>Precio:</label>
-                        <input type='number' name='price' value='${transaction.price}'>
-                        <input type='submit' style="background: #333; border: none" value="Submit">
-                        <input id='exit-button' type='button' style="background: #333; border: none;" value="Exit">
-                    </form>
-                </div>`;
-
-            // Asignar el HTML generado al elemento editRef.current
-            editRef.current.innerHTML = transactionHTML;
-
-            // Mostrar el contenedor
-            editRef.current.style.display = 'flex';
-
-            // Agregar un listener para el botón de salida (exit button)
-            document.getElementById('exit-button').addEventListener('click', exitEdit);
-
-            // Capturar el evento de envío del formulario de edición
-            const formEdit = document.getElementById('form-edit');
-            formEdit.addEventListener('submit', (e) => handleSubmitEditForm(e, transaction.id));
-        }
+    const recibirDato = (datoRecibido) => {
+        console.log(`Dato del dolar: ${datoRecibido}`);
+        setExchangeRate(datoRecibido);
     };
 
     const exitEdit = () => {
@@ -237,48 +115,144 @@ const App = () => {
         }
     };
 
-    const recibirDato = (datoRecibido) => {
-        console.log(`Dato del dolar: ${datoRecibido}`);
-        setExchangeRate(datoRecibido);
-    };
-
-    const calculateTotals = () => {
-        const totals = transactions.reduce((acc, transaction) => {
-            acc[transaction.type] = (acc[transaction.type] || 0) + parseFloat(transaction.price);
-            return acc;
-        }, {});
-
-        setTotals({
-            Buys: totals.Buys || 0,
-            Incomes: totals.Incomes || 0,
-            Expenses: totals.Expenses || 0,
-            Debts: totals.Debts || 0,
-            General: (totals.Incomes - totals.Expenses) || 0
-        });
-    };
-
     return (
-        <div id="container" style={{ background: '#333', display: 'flex', flexDirection: 'column', gap: '5%', alignItems: 'center', justifyContent: 'center', padding: '0%' }}>
-            <div ref={editRef} id="hidden-edit" style={{ position: 'absolute', background: 'rgba(0,0,0,0.8)', height: '100%', width: '75%',left:'0', display: 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            </div>
+        <div
+            id="container"
+            style={{
+                background: '#333',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0%',
+            }}
+        >
+            <div
+                ref={editRef}
+                id="hidden-edit"
+                style={{
+                    position: 'absolute',
+                    background: 'rgba(0,0,0,0.8)',
+                    height: '100%',
+                    width: '75%',
+                    left: '0',
+                    display: 'none',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            ></div>
             <div id="content">
-                <div id="results" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '5% 1fr 1fr 5%', gap: '0%', alignItems: 'start', justifyContent: 'center' }} className="results">
-                    <div id="container-2" style={{ gridColumn: '1 / -1', gridRow: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gridTemplateRows: '0.2fr 0fr 1fr', padding: '1%', margin:'1% 10% 4% 5%',gap: '4%' }}>
-                        <FormPrincipal handleSubmit={handleSubmit} inputData={inputData} handleChange={handleChange} closeForm={closeForm}></FormPrincipal>
-                        <Cash formatPrice={formatPrice} totals={totals} exchangeRate={exchangeRate} closeCash={closeCash}></Cash>
-                        <Menu openForm={openForm} openCash={openCash} getColor={getColor}></Menu>
-                        <div style={{gridRow:'2',gridColumn:'1', height:'100vh',display:'none'}}><Dollar enviarDato={recibirDato}></Dollar></div>
-                        <div id="buys-container" style={{ gridRow: '1/4', gridColumn: '1/4'}}>
-                            <TransactionList transactions={transactions} type="Buys" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT} />
+                <div
+                    id="results"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr 1fr 1fr',
+                        gridTemplateRows: '5% 1fr 1fr 5%',
+                        gap: '0%',
+                        alignItems: 'start',
+                        justifyContent: 'center',
+                    }}
+                    className="results"
+                >
+                    <div
+                        id="container-2"
+                        style={{
+                            gridColumn: '1 / -1',
+                            gridRow: '1 / -1',
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr 1fr 1fr',
+                            gridTemplateRows: '0.2fr 0fr 1fr',
+                            padding: '2%',
+                            margin: '0% 3% 4% 0%',
+                            gap: '0%',
+                        }}
+                    >
+                        <FormPrincipal
+                            handleSubmit={handleSubmit}
+                            inputData={inputData}
+                            handleChange={handleChange}
+                            closeForm={closeForm}
+                        ></FormPrincipal>
+                        <Cash
+                            formatPrice={formatPrice}
+                            totals={totals}
+                            exchangeRate={exchangeRate}
+                            closeCash={closeCash}
+                        ></Cash>
+                        <Menu
+                            openForm={openForm}
+                            openCash={openCash}
+                            getColor={getColor}
+                            formatPrice={formatPrice}
+                            precioDolar={precioDolar}
+                        ></Menu>
+                        <div
+                            style={{
+                                gridRow: '2',
+                                gridColumn: '1',
+                                height: '100vh',
+                                display: 'none',
+                            }}
+                        >
+                            <Dollar enviarDato={recibirDato}></Dollar>
+                        </div>
+                        <div id="buys-container" style={{ gridRow: '1/4', gridColumn: '1/4' }}>
+                            <TransactionList
+                                transactions={transactions}
+                                type="Buys"
+                                setTransactions={setTransactions}
+                                exchangeRate={exchangeRate}
+                                onSeeMore={(transaction) =>
+                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm)
+                                }
+                                getColor={getColor}
+                                formatPrice={formatPrice}
+                                HTTP_ENDPOINT={HTTP_ENDPOINT}
+                            />
                         </div>
                         <div id="debts-container" style={{ gridRow: '1/4', gridColumn: '1/4' }}>
-                            <TransactionList transactions={transactions} type="Debts" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
+                            <TransactionList
+                                transactions={transactions}
+                                type="Debts"
+                                setTransactions={setTransactions}
+                                exchangeRate={exchangeRate}
+                                onSeeMore={(transaction) =>
+                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm)
+                                }
+                                getColor={getColor}
+                                formatPrice={formatPrice}
+                                HTTP_ENDPOINT={HTTP_ENDPOINT}
+                            />
                         </div>
                         <div id="expenses-container" style={{ gridRow: '1/4', gridColumn: '1/4' }}>
-                            <TransactionList transactions={transactions} type="Expenses" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
+                            <TransactionList
+                                transactions={transactions}
+                                type="Expenses"
+                                setTransactions={setTransactions}
+                                exchangeRate={exchangeRate}
+                                onSeeMore={(transaction) =>
+                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm)
+                                }
+                                getColor={getColor}
+                                formatPrice={formatPrice}
+                                HTTP_ENDPOINT={HTTP_ENDPOINT}
+                            />
                         </div>
-                        <div id="incomes-container" style={{ gridRow: '1/4', gridColumn: '1/4'}}>
-                            <TransactionList transactions={transactions} type="Incomes" setTransactions={setTransactions} exchangeRate={exchangeRate} onSeeMore={seeMore} getColor={getColor} formatPrice={formatPrice} HTTP_ENDPOINT={HTTP_ENDPOINT}/>
+                        <div id="incomes-container" style={{ gridRow: '1/4', gridColumn: '1/4' }}>
+                            <TransactionList
+                                transactions={transactions}
+                                type="Incomes"
+                                setTransactions={setTransactions}
+                                exchangeRate={exchangeRate}
+                                onSeeMore={(transaction) =>
+                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm)
+                                }
+                                getColor={getColor}
+                                formatPrice={formatPrice}
+                                HTTP_ENDPOINT={HTTP_ENDPOINT}
+                            />
                         </div>
                     </div>
                 </div>
