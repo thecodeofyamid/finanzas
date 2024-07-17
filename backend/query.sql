@@ -143,7 +143,13 @@ CREATE TABLE IF NOT EXISTS "Debts" (
 -- BEGIN
 --     DELETE FROM Incomes WHERE id = OLD.Transactions_id;
 -- END;
-
+CREATE TRIGGER after_update_check 
+AFTER UPDATE ready ON Transactions
+FOR EACH ROW
+WHEN NEW.check = 0
+BEGIN
+	
+END;
 
 -- DROP TABLE Transactions;
 -- DROP TRIGGER after_insert_transactions_incomes;

@@ -41,8 +41,8 @@ const Menu = ({ openForm, openCash, getColor, precioDolar}) => {
     return (
         <div id="menu" style={{ background: '#202020', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', position: 'absolute', width: '26%', right: '0',top:'0'}}>
             <div style={{width:'80%', height:'88%',marginTop:'5%', background:selectedType ? getColor(selectedType)[1] : '#191919', borderRadius:'10px',display:'flex',flexDirection:'column', justifyContent:'center',alignItems:'center'}}>
-                    <div id="bg-dark" style={{ background: 'rgba(0,0,0,.8)', position: 'absolute', width: '70vw', height: '100vh', display: 'none', right: '0' }}></div>
-                    <div style={{ width: '100%', textAlign: 'center', padding: '5%' }}><h6>Menú</h6></div>
+                    <div id="bg-dark" style={{ background: 'rgba(0,0,0,.8)', position: 'absolute', width: '70vw', height: '120vh', display: 'none', right: '0' }}></div>
+                    <div style={{ width: '100%', textAlign: 'center', padding: '5%', color:'white' }}><h6>Menú</h6></div>
                     <a href="/"><img style={{ width: '60px', height: '60px', margin: '4%',cursor:'pointer'}} src="dollar.png" alt="money" /></a>
                     <div style={{ width: '100%' }}>
                         <ul style={{ color: 'white' }}>
