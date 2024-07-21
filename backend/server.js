@@ -40,6 +40,19 @@ db.serialize(() => {
 });
 
 app.get('/transactions', (req, res) => {
+    const date_now = new Date();
+    const month = date_now.getMonth(); // getMonth() devuelve 0 para enero, así que sumamos 1
+    console.log("MES: ", month);
+
+    // Consulta SQL usando el mes actual
+    
+    //  db.all("SELECT * FROM Transactions WHERE strftime('%m', date) = ?", [month.toString().padStart(2, '0')], (err, rows) => {
+    //      if (err) {
+    //          return res.status(500).json({ error: err.message });
+    //      }
+    //      res.json(rows);
+    //  });
+    
     db.all("SELECT * FROM Transactions", (err, rows) => {
         if (err) {
             return res.status(500).json({ error: err.message });
@@ -48,10 +61,26 @@ app.get('/transactions', (req, res) => {
     });
 });
 
+app.get('/transactions/:month', (req, res) => {
+    const month = parseInt(req.params.month,10);
+    console.log("MES: ", month);
+
+    // Consulta SQL usando el mes actual
+    
+    db.all("SELECT * FROM Transactions WHERE strftime('%m', date) = ?", [month.toString().padStart(2, '0')], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(rows);
+    });
+    
+});
+
+
 app.put('/edit/:id', (req, res) => {
     const id = req.params.id;  // Obtener el id de los parámetros
 
-    const { price, description } = req.body;
+    const { price, description, date } = req.body;
 
     // Construir la consulta UPDATE inicial
     let sql = `UPDATE Transactions SET`;
@@ -67,6 +96,11 @@ app.put('/edit/:id', (req, res) => {
     if (description !== undefined) {
         sql += ` description = ?,`;
         params.push(description);
+    }
+    // Verificar y agregar la descripción si está presente en la solicitud
+    if (date !== undefined) {
+        sql += ` date = ?,`;
+        params.push(date);
     }
 
     // Eliminar la coma adicional al final de la consulta UPDATE

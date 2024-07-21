@@ -1,31 +1,35 @@
--- BEGIN TRANSACTION;
--- CREATE TABLE IF NOT EXISTS "Users" (
--- 	"id"	INTEGER,
--- 	"name"	TEXT,
--- 	"password"	TEXT,
--- 	PRIMARY KEY("id" AUTOINCREMENT)
--- );
--- CREATE TABLE IF NOT EXISTS "Cash" (
--- 	"id"	INTEGER,
--- 	"number"	INTEGER,
--- 	"total"	REAL,
--- 	"Users_id"	INTEGER,
--- 	FOREIGN KEY("Users_id") REFERENCES "Users"("id"),
--- 	PRIMARY KEY("id" AUTOINCREMENT)
--- );
--- CREATE TABLE IF NOT EXISTS "History_changes" (
--- 	"id"	INTEGER,
--- 	"table_name"	TEXT,
--- 	"change"	TEXT,
--- 	"description"	TEXT,
--- 	"price"	REAL,
--- 	"date_time"	TEXT,
--- 	"Cash_id"	INTEGER,
--- 	"Cash_Usuario_id"	INTEGER,
--- 	FOREIGN KEY("Cash_id") REFERENCES "Cash"("id"),
--- 	FOREIGN KEY("Cash_Usuario_id") REFERENCES "Cash"("Usuario_id"),
--- 	PRIMARY KEY("id")
--- );
+BEGIN TRANSACTION;
+
+CREATE TABLE IF NOT EXISTS "Users" (
+ 	"id"	INTEGER,
+ 	"name"	TEXT,
+ 	"password"	TEXT,
+ 	PRIMARY KEY("id" AUTOINCREMENT)
+);
+
+CREATE TABLE IF NOT EXISTS "Cash" (
+ 	"id"	INTEGER,
+ 	"number"	INTEGER,
+ 	"total"	REAL,
+ 	"Users_id"	INTEGER,
+ 	FOREIGN KEY("Users_id") REFERENCES "Users"("id"),
+ 	PRIMARY KEY("id" AUTOINCREMENT)
+);
+
+DROP TABLE History_changes;
+CREATE TABLE IF NOT EXISTS "History_changes" (
+ 	"id"	INTEGER,
+ 	"table_name"	TEXT,
+ 	"change"	TEXT,
+ 	"description"	TEXT,
+ 	"price"	REAL,
+ 	"date_time"	TEXT,
+ 	"Cash_id"	INTEGER,
+ 	"Cash_Usuario_id"	INTEGER,
+ 	FOREIGN KEY("Cash_id") REFERENCES "Cash"("id"),
+ 	FOREIGN KEY("Cash_Usuario_id") REFERENCES "Cash"("Usuario_id"),
+ 	PRIMARY KEY("id" AUTOINCREMENT)
+ );
 -- DROP TABLE Transactions;
  CREATE TABLE IF NOT EXISTS "Transactions" (
  	"id"	INTEGER,
@@ -143,13 +147,13 @@ CREATE TABLE IF NOT EXISTS "Debts" (
 -- BEGIN
 --     DELETE FROM Incomes WHERE id = OLD.Transactions_id;
 -- END;
-CREATE TRIGGER after_update_check 
-AFTER UPDATE ready ON Transactions
-FOR EACH ROW
-WHEN NEW.check = 0
-BEGIN
+-- CREATE TRIGGER after_update_check 
+-- AFTER UPDATE ready ON Transactions
+-- FOR EACH ROW
+-- WHEN NEW.check = 0
+-- BEGIN
 	
-END;
+-- END;
 
 -- DROP TABLE Transactions;
 -- DROP TRIGGER after_insert_transactions_incomes;
@@ -165,9 +169,9 @@ END;
 --SELECT * FROM Buys;
 -- SELECT * FROM Incomes;
 -- SELECT * FROM Expenses;
-SELECT * FROM Transactions;
+-- SELECT * FROM Transactions;
 -- SELECT * FROM Buys;
-SELECT * FROM Debts;
+-- SELECT * FROM Debts;
 -- SELECT * FROM Cash;
 -- SELECT * FROM Users;
 --SELECT * FROM History_changes;

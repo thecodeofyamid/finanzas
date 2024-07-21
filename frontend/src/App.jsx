@@ -27,6 +27,7 @@ export const App = () => {
     const [editingTransaction, setEditingTransaction] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [precioDolar, setPrecioDolar] = useState(null);
+    const [selectedMonth, setSelectedMonth] = useState("0");
 
     const isInitialLoad = useRef(true);
     const wsRef = useRef(null);
@@ -34,7 +35,8 @@ export const App = () => {
 
     useWebSocket(WS_ENDPOINT, setPrecioDolar, enviarDato);
 
-    useTransactionsWebSocket(setTransactions, isInitialLoad, wsRef, getUniqueTransactions);
+    // Pasar selectedMonth al hook useTransactionsWebSocket
+    useTransactionsWebSocket(setTransactions, isInitialLoad, wsRef, getUniqueTransactions, selectedMonth);
 
     useCalculateTotals(transactions, setTotals);
 
@@ -64,16 +66,7 @@ export const App = () => {
             const response = await axios.post(`${HTTP_ENDPOINT}/add_transactions`, inputDataCopy);
             const newTransaction = response.data;
             setTransactions((prevTransactions) => getUniqueTransactions([...prevTransactions, newTransaction]));
-            setInputData({
-                description: '',
-                price: '',
-                date: '',
-                importance: '',
-                type: '',
-                category: '',
-                ready: '',
-                deadline: '',
-            });
+            setInputData(initialInputData);
         } catch (error) {
             console.error('Error inserting transaction', error);
             alert('Error inserting transaction. Please check your data and try again.');
@@ -185,8 +178,8 @@ export const App = () => {
                             openForm={openForm}
                             openCash={openCash}
                             getColor={getColor}
-                            formatPrice={formatPrice}
                             precioDolar={precioDolar}
+                            setSelectedMonth={setSelectedMonth} // Pasar setSelectedMonth a Menu
                         ></Menu>
                         <div
                             style={{

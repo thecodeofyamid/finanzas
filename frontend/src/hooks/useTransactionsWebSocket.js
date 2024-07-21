@@ -2,11 +2,12 @@ import { useEffect } from 'react';
 import axios from 'axios';
 import { WS_ENDPOINT, HTTP_ENDPOINT } from '../config/endpoints';
 
-const useTransactionsWebSocket = (setTransactions, isInitialLoad, wsRef, getUniqueTransactions) => {
+const useTransactionsWebSocket = (setTransactions, isInitialLoad, wsRef, getUniqueTransactions, selectedMonth) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${HTTP_ENDPOINT}/transactions`);
+                const endpoint = selectedMonth !== "0" ? `${HTTP_ENDPOINT}/transactions/${selectedMonth}` : `${HTTP_ENDPOINT}/transactions`;
+                const response = await axios.get(endpoint);
                 const uniqueTransactions = getUniqueTransactions(response.data);
                 setTransactions(uniqueTransactions);
                 isInitialLoad.current = false;
@@ -43,12 +44,16 @@ const useTransactionsWebSocket = (setTransactions, isInitialLoad, wsRef, getUniq
             }
         };
 
+        wsRef.current.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
         return () => {
             if (wsRef.current) {
                 wsRef.current.close();
             }
         };
-    }, [setTransactions, isInitialLoad, wsRef]);
+    }, [setTransactions, isInitialLoad, wsRef, selectedMonth, getUniqueTransactions]);
 };
 
 export default useTransactionsWebSocket;
