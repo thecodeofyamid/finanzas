@@ -79,7 +79,7 @@ const TransactionList = ({
           <div style={{width:'100%',textAlign:'center', height:'100vh',display:'flex', flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
             <h1>No hay transacciones</h1>
             <div style={{width:'250px', padding:'2%'}}>
-              <img src="/close.png"></img>  
+              <img src="/sad.png"></img>  
             </div>
           </div>
         ) : (

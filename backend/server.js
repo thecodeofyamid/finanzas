@@ -14,45 +14,18 @@ app.use(bodyParser.json());
 
 const db = new sqlite3.Database('./mydatabase.sqlite');
 
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS Transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        description TEXT,
-        price REAL,
-        date TEXT,
-        importance TEXT,
-        type TEXT,
-        category TEXT,
-        ready INTEGER,
-        deadline TEXT,
-        Users_id INTEGER,
-        FOREIGN KEY(Users_id) REFERENCES Users(id)
-    )`);
-    
-    db.run(`CREATE TABLE IF NOT EXISTS Incomes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        type TEXT,
-        Transactions_id INTEGER,
-        FOREIGN KEY(Transactions_id) REFERENCES Transactions(id)
-    )`);
-    
-    // Similar para Expenses, Buys, Debts
+// Share the db connection across all requests
+app.use((req, res, next) => {
+  req.db = db;
+  next();
 });
 
 app.get('/transactions', (req, res) => {
     const date_now = new Date();
-    const month = date_now.getMonth(); // getMonth() devuelve 0 para enero, así que sumamos 1
+    const month = date_now.getMonth() + 1; // getMonth() devuelve 0 para enero, así que sumamos 1
     console.log("MES: ", month);
 
     // Consulta SQL usando el mes actual
-    
-    //  db.all("SELECT * FROM Transactions WHERE strftime('%m', date) = ?", [month.toString().padStart(2, '0')], (err, rows) => {
-    //      if (err) {
-    //          return res.status(500).json({ error: err.message });
-    //      }
-    //      res.json(rows);
-    //  });
-    
     db.all("SELECT * FROM Transactions", (err, rows) => {
         if (err) {
             return res.status(500).json({ error: err.message });
@@ -62,77 +35,69 @@ app.get('/transactions', (req, res) => {
 });
 
 app.get('/transactions/:month', (req, res) => {
-    const month = parseInt(req.params.month,10);
+    const month = parseInt(req.params.month, 10);
     console.log("MES: ", month);
 
     // Consulta SQL usando el mes actual
-    
     db.all("SELECT * FROM Transactions WHERE strftime('%m', date) = ?", [month.toString().padStart(2, '0')], (err, rows) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
         res.json(rows);
     });
-    
 });
 
-
 app.put('/edit/:id', (req, res) => {
-    const id = req.params.id;  // Obtener el id de los parámetros
-
+    const id = req.params.id;
     const { price, description, date } = req.body;
 
-    // Construir la consulta UPDATE inicial
-    let sql = `UPDATE Transactions SET`;
+    // Construir la consulta UPDATE
+    let sql = 'UPDATE Transactions SET';
     const params = [];
 
-    // Verificar y agregar el precio si está presente en la solicitud
+    // Añadir las columnas a actualizar si están presentes en la solicitud
     if (price !== undefined) {
-        sql += ` price = ?,`;
+        sql += ' price = ?,';
         params.push(price);
     }
 
-    // Verificar y agregar la descripción si está presente en la solicitud
     if (description !== undefined) {
-        sql += ` description = ?,`;
+        sql += ' description = ?,';
         params.push(description);
     }
-    // Verificar y agregar la descripción si está presente en la solicitud
+
     if (date !== undefined) {
-        sql += ` date = ?,`;
+        sql += ' date = ?,';
         params.push(date);
     }
 
-    // Eliminar la coma adicional al final de la consulta UPDATE
-    sql = sql.slice(0, -1);
-
-    // Agregar la condición WHERE para el ID
-    sql += ` WHERE id = ?`;
+    // Eliminar la coma final y agregar la condición WHERE
+    sql = sql.slice(0, -1);  // Eliminar la última coma
+    sql += ' WHERE id = ?';
     params.push(id);
 
-    // Ejecutar la consulta UPDATE con los parámetros apropiados
-    db.run(sql, params, function(err) {
-        if (err) {
-            console.error('Error executing query:', err.message);
-            return res.status(500).json({ error: err.message });
-        }
-
-        if (this.changes === 0) {
-            console.warn('Transaction not found:', id);
-            return res.status(404).json({ error: 'Transaction not found' });
-        }
-
-        // Notificar a los clientes WebSocket
-        ws.clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ action: 'edit', transaction: { id } }));
+    db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        db.run(sql, params, function(err) {
+            if (err) {
+                console.error('Error executing query:', err.message);
+                db.run('ROLLBACK');
+                return res.status(500).json({ error: err.message });
             }
-        });
 
-        console.log('Transaction edited:', id);
-        res.json({ message: 'Transaction edited', transaction: { id } });
+            db.run('COMMIT');
+            ws.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ action: 'edit', transaction: { id } }));
+                }
+            });
+
+            console.log('Transaction edited:', id);
+            res.json({ message: 'Transaction edited: ', transaction: { id } });
+        });
     });
 });
+
 
 app.post('/ready/:type/:id/:state', (req, res) => {
     const type = req.params.type;
@@ -144,6 +109,7 @@ app.post('/ready/:type/:id/:state', (req, res) => {
 
     // Ejecutar ambas consultas dentro de una transacción
     db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
         db.run(sql1, [state, id], function (err) {
             if (err) {
                 console.error('Error al actualizar la transacción:', err);
@@ -164,10 +130,10 @@ app.post('/ready/:type/:id/:state', (req, res) => {
             // Solo enviar una respuesta después de completar ambas actualizaciones
             res.json({ mensaje: `${type} actualizado correctamente`, cambios: this.changes });
         });
+
+        db.run('COMMIT');
     });
 });
-
-
 
 app.post('/add_transactions', (req, res) => {
     const { description, price, date, importance, type, category, ready, deadline, Users_id } = req.body;
@@ -191,7 +157,6 @@ app.post('/add_transactions', (req, res) => {
 
 app.post('/delete_transaction', (req, res) => {
     const { id } = req.body;
-
     db.run(`DELETE FROM Transactions WHERE id = ?`, [id], function(err) {
         if (err) {
             console.error('Error executing query:', err.message);

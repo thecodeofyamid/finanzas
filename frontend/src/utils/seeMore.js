@@ -1,13 +1,12 @@
-import { getColor } from '../utils/getColor'; // Asegúrate de importar getColor si es necesario
-
-const seeMore = (transaction, setEditingTransaction, editRef, handleSubmitEditForm) => {
+// seeMore.js
+const seeMore = (transaction, setEditingTransaction, editRef,handleSubmitEditForm, getColor) => {
     setEditingTransaction(transaction);
 
     if (editRef.current) {
         const transactionHTML = `
             <div id="edit-box" style="background: white; width: 80%; padding:2%; border: 5px solid ${getColor(transaction.type)[1]}; background: ${getColor(transaction.type)[1]}; color: white">
                 <div><h4>Información del producto</h4></div>
-                <form id="form-edit" onSubmit="handleSubmitEditForm(event, '${transaction.id}')">
+                <form id="form-edit">
                     <label style='color:white'>Descripción:</label>
                     <input type='text' name='description' value='${transaction.description}'>
                     <label style='color:white'>Fecha:</label>
@@ -19,16 +18,11 @@ const seeMore = (transaction, setEditingTransaction, editRef, handleSubmitEditFo
                 </form>
             </div>`;
 
-        // Asignar el HTML generado al elemento editRef.current
         editRef.current.innerHTML = transactionHTML;
-
-        // Mostrar el contenedor
         editRef.current.style.display = 'flex';
 
-        // Agregar un listener para el botón de salida (exit button)
         document.getElementById('exit-button').addEventListener('click', () => exitEdit(setEditingTransaction, editRef));
 
-        // Capturar el evento de envío del formulario de edición
         const formEdit = document.getElementById('form-edit');
         formEdit.addEventListener('submit', (e) => handleSubmitEditForm(e, transaction.id));
     }

@@ -43,7 +43,7 @@ const Menu = ({ openForm, openCash, getColor, precioDolar, setSelectedMonth }) =
                 <div id="bg-dark" style={{ background: 'rgba(0,0,0,.8)', position: 'absolute', width: '70vw', height: '120vh', display: 'none', right: '0' }}></div>
                 <div style={{ width: '100%' }}>
                     <div style={{ padding: '5%', height: 'auto' }}>
-                        <label>Mes: </label>
+                        <label style={{color:'white', width: '100%', textAlign:'center'}}>Mes: </label>
                         <select style={{ color: 'black', border: 'none' }} onChange={handleMonthChange}>
                             <option value="0">Todos</option>
                             <option value="1">Enero</option>

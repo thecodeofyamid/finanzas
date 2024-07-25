@@ -20,7 +20,27 @@ import getUniqueTransactions from './helpers/getUniqueTransaction';
 import useCalculateTotals from './hooks/useCalculateTotals';
 import seeMore from './utils/seeMore';
 
-export const App = () => {
+const handleSubmitEditForm = (event, id) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = {
+        description: formData.get('description'),
+        date: formData.get('date'),
+        price: formData.get('price')
+    };
+    axios.put(`http://192.168.18.141:4000/edit/${id}`, data)
+        .then(response => {
+            const { message, transaction } = response.data;
+            alert(`${message}\nTransaction ID: ${transaction.id}`);
+            window.location.reload();
+            // Actualiza el estado o realiza las acciones necesarias
+        })
+        .catch(error => {
+            alert('Error editing transaction:', error);
+        });
+};
+
+const App = () => {
     const [exchangeRate, setExchangeRate] = useState(null);
     const [inputData, setInputData] = useState(initialInputData);
     const [totals, setTotals] = useState(initialTotals);
@@ -66,36 +86,22 @@ export const App = () => {
             const response = await axios.post(`${HTTP_ENDPOINT}/add_transactions`, inputDataCopy);
             const newTransaction = response.data;
             setTransactions((prevTransactions) => getUniqueTransactions([...prevTransactions, newTransaction]));
-            setInputData(initialInputData);
+            setInputData({
+                description: '',
+                price: '',
+                date: '',
+                importance: '',
+                type: '',
+                category: '',
+                ready: '',
+                deadline: '',
+            });
         } catch (error) {
             console.error('Error inserting transaction', error);
             alert('Error inserting transaction. Please check your data and try again.');
         }
     };
-
-    const handleSubmitEditForm = async (e, id) => {
-        e.preventDefault();
-
-        const formData = new FormData(e.target);
-        const editedData = Object.fromEntries(formData.entries());
-
-        try {
-            const response = await axios.put(`${HTTP_ENDPOINT}/edit/${id}`, editedData);
-            const updatedTransaction = response.data.transaction;
-
-            setTransactions((prevTransactions) =>
-                prevTransactions.map((transaction) =>
-                    transaction.id === updatedTransaction.id ? updatedTransaction : transaction
-                )
-            );
-            alert('Registro modificado con éxito ');
-            exitEdit(); // Cerrar el formulario de edición
-        } catch (error) {
-            console.error('Error editing transaction:', error);
-            alert('Error editing transaction. Please try again.');
-        }
-    };
-
+    
     const recibirDato = (datoRecibido) => {
         console.log(`Dato del dolar: ${datoRecibido}`);
         setExchangeRate(datoRecibido);
@@ -198,7 +204,7 @@ export const App = () => {
                                 setTransactions={setTransactions}
                                 exchangeRate={exchangeRate}
                                 onSeeMore={(transaction) =>
-                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm)
+                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm, getColor)
                                 }
                                 getColor={getColor}
                                 formatPrice={formatPrice}
@@ -212,7 +218,7 @@ export const App = () => {
                                 setTransactions={setTransactions}
                                 exchangeRate={exchangeRate}
                                 onSeeMore={(transaction) =>
-                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm)
+                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm,getColor)
                                 }
                                 getColor={getColor}
                                 formatPrice={formatPrice}
@@ -226,7 +232,7 @@ export const App = () => {
                                 setTransactions={setTransactions}
                                 exchangeRate={exchangeRate}
                                 onSeeMore={(transaction) =>
-                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm)
+                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm,getColor)
                                 }
                                 getColor={getColor}
                                 formatPrice={formatPrice}
@@ -240,7 +246,7 @@ export const App = () => {
                                 setTransactions={setTransactions}
                                 exchangeRate={exchangeRate}
                                 onSeeMore={(transaction) =>
-                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm)
+                                    seeMore(transaction, setEditingTransaction, editRef, handleSubmitEditForm,getColor)
                                 }
                                 getColor={getColor}
                                 formatPrice={formatPrice}
@@ -253,5 +259,4 @@ export const App = () => {
         </div>
     );
 };
-
 export default App;
