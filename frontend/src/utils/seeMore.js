@@ -4,11 +4,13 @@ const seeMore = (transaction, setEditingTransaction, editRef,handleSubmitEditFor
 
     if (editRef.current) {
         const transactionHTML = `
-            <div id="edit-box" style="background: white; width: 80%; padding:2%; border: 5px solid ${getColor(transaction.type)[1]}; background: ${getColor(transaction.type)[1]}; color: white">
+            <div id="edit-box" style="background: white;height: 90vh; overflow: auto; width: 80%; padding:2%; border: 5px solid ${getColor(transaction.type)[1]}; background: ${getColor(transaction.type)[1]}; color: white">
                 <div><h4>Información del producto</h4></div>
                 <form id="form-edit">
                     <label style='color:white'>Descripción:</label>
                     <input type='text' name='description' value='${transaction.description}'>
+                    <label style='color:white'>Importancia:</label>
+                    <input type='text' name='importance' value='${transaction.importance}'>
                     <label style='color:white'>Fecha:</label>
                     <input type='date' name='date' value='${transaction.date}'>
                     <label style='color:white'>Precio:</label>

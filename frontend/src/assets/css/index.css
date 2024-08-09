@@ -57,14 +57,16 @@ body::-webkit-scrollbar-thumb{
   background-color: none;
 }
 
-input{
+input,select{
   text-align: center;
   height: 50px !important;
   background: #fff;
   color: black;
   font-size: 15px !important;
 }
-
+label{
+  text-align: center;
+}
 input::placeholder{
   color: #505050;
 }
@@ -240,7 +242,11 @@ input[type="checkbox"]:checked::after {
   display: grid;
   grid-template-columns: 1fr;
   width: 85%;
+  gap: 2%;
   height: 100%;
+}
+input{
+  margin: 2% 0 !important;
 }
 @media(height<500px){
   #form-home{

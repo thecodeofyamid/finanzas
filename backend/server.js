@@ -49,7 +49,7 @@ app.get('/transactions/:month', (req, res) => {
 
 app.put('/edit/:id', (req, res) => {
     const id = req.params.id;
-    const { price, description, date } = req.body;
+    const { price, description, date, importance } = req.body;
 
     // Construir la consulta UPDATE
     let sql = 'UPDATE Transactions SET';
@@ -71,6 +71,10 @@ app.put('/edit/:id', (req, res) => {
         params.push(date);
     }
 
+    if (importance !== undefined) {
+        sql += ' importance = ?,';
+        params.push(importance);
+    }
     // Eliminar la coma final y agregar la condición WHERE
     sql = sql.slice(0, -1);  // Eliminar la última coma
     sql += ' WHERE id = ?';

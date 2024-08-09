@@ -13,7 +13,7 @@ const TransactionList = ({
 }) => {
   
   const [checkedItems, setCheckedItems] = useState({});
-
+  
   // Función para inicializar checkedItems basado en transactions
   useEffect(() => {
     const initialCheckedItems = {};
@@ -38,17 +38,28 @@ const TransactionList = ({
           transaction.id === id ? { ...transaction, ready: state } : transaction
         );
         setTransactions(updatedTransactions);
-        if (isChecked) {
-          alert(type === 'Buys' ? `Compra #${id} realizada!` : `Deuda #${id} saldada con éxito!`);
-        } else {
-          alert(type === 'Buys' ? `La compra #${id} se canceló` : `Pago de la deuda #${id} cancelada con éxito!`);
-        }
       }
     } catch (error) {
       console.error('Error updating transaction state:', error);
       alert('Error actualizando el estado de la transacción. Por favor, intenta de nuevo.');
     }
   };
+
+  const getColorImp = (importance) => {
+      console.log("Importancia: ",importance)
+      switch(importance){
+        case 'Alta':
+          return 'red';
+        case 'Baja':
+          return 'green';
+        case 'Media':
+          return 'orange';
+        case 'Ninguna':
+          return 'black';
+        default:
+          return '#BFBFBF'
+      }
+  }
 
   const deleteTransaction = async (id) => {
     try {
@@ -151,8 +162,13 @@ const TransactionList = ({
                     </h6>
                   </div>
                 </div>
-                <div>
-                    <h6 style={{color:`${getColor(transaction.type)[1]}`}}>{transaction.date}</h6>
+                <div style={{display:'flex',justifyContent:'space-around'}}>
+                  <div style={{background:'#BFBFBF',padding:'2%',width:'45%'}}>
+                      <h6 style={{color:`${getColor(transaction.type)[1]}`}}>{transaction.date}</h6>
+                  </div>
+                  <div style={{background:`${getColorImp(transaction.importance)}`,padding:'2%',width:'45%'}}>
+                    <h6 style={{color: '#'}}>{transaction.importance}</h6>
+                  </div>
                 </div>
                 </div>
               )}
@@ -176,12 +192,17 @@ const TransactionList = ({
                     </h6>
                   </div>
                 </div>
-                <div>
-                    <h6 style={{color:`${getColor(transaction.type)[1]}`}}>{transaction.date}</h6>
+                <div style={{display:'flex',justifyContent:'space-around'}}>
+                  <div style={{background:'#BFBFBF',padding:'2%',width:'45%'}}>
+                      <h6 style={{color:`${getColor(transaction.type)[1]}`}}>{transaction.date}</h6>
+                  </div>
+                  <div style={{background:`${getColorImp(transaction.importance)}`,padding:'2%',width:'45%'}}>
+                    <h6 style={{color: '#'}}>{transaction.importance}</h6>
+                  </div>
                 </div>
               </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'left', gap: '3%' }}>
+              <div style={{ display: 'flex', justifyContent: 'left', gap: '3%', marginTop:'2%'}}>
                 <button style={{ background: 'grey', border: 'none', padding: '1%' }}
                         onClick={() => deleteTransaction(transaction.id)}>Borrar</button>
                 <button style={{ background: getColor(transaction.type)[1], border: 'none', padding: '1%' }}

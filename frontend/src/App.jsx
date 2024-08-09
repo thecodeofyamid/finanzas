@@ -26,14 +26,14 @@ const handleSubmitEditForm = (event, id) => {
     const data = {
         description: formData.get('description'),
         date: formData.get('date'),
-        price: formData.get('price')
+        price: formData.get('price'),
+        importance: formData.get('importance')
     };
-    axios.put(`http://192.168.18.141:4000/edit/${id}`, data)
+    axios.put(`${HTTP_ENDPOINT}/edit/${id}`, data)
         .then(response => {
             const { message, transaction } = response.data;
             alert(`${message}\nTransaction ID: ${transaction.id}`);
             window.location.reload();
-            // Actualiza el estado o realiza las acciones necesarias
         })
         .catch(error => {
             alert('Error editing transaction:', error);
@@ -54,10 +54,7 @@ const App = () => {
     const editRef = useRef(null);
 
     useWebSocket(WS_ENDPOINT, setPrecioDolar, enviarDato);
-
-    // Pasar selectedMonth al hook useTransactionsWebSocket
     useTransactionsWebSocket(setTransactions, isInitialLoad, wsRef, getUniqueTransactions, selectedMonth);
-
     useCalculateTotals(transactions, setTotals);
 
     const handleChange = (e) => {
